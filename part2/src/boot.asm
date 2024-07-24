@@ -7,6 +7,11 @@ section .text
 ; muszą być zakodowane w systemie 32 bitowym, stało rozmiarowym
 bits 32
 start:
+    ; inicjacja stacku
+    ; w procesorach potomnych dla i386 stack zaczyna się od jego góry i kończy na spodzie
+    mov esp, stack_top
+
+
     ; wypisanie "OK" na ekranie
     ; adres 0x000b8000 jest na tym etapie adresem danych wypisywanych w trybie tekstowym
     ; rozbijając wiadomość na częscie: 
@@ -29,3 +34,14 @@ error:
     mov dword [0xb8008], 0x4f204f20
     mov byte  [0xb800a], al
     hlt
+
+; sekcja danych statycznych
+section .bss
+; label ułatwiający nam znalezienie spodu stack-u 
+stack_bottom:
+; zarezerwowanie miejsca na stack
+; ta przestrzeń będzie używana tylko i wyłącznie przez część napisaną w ASM
+; dla pewności rezerwujemy 64 bajty, wystarczył by 32
+    resb 64
+; label ułatwiający nam znalezienie góry stack-u
+stack_top:
