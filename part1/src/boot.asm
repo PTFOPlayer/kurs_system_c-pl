@@ -1,11 +1,11 @@
 ; definicja miejsca zaczęcia programu
-global start
+global  start
 
 section .text
 
 ; informacja dla kompilatora o tym że wszystkie poniższe instrukcje
 ; muszą być zakodowane w systemie 32 bitowym, stało rozmiarowym
-bits 32
+bits    32
 start:
     ; wypisanie "OK" na ekranie
     ; adres 0x000b8000 jest na tym etapie adresem danych wypisywanych w trybie tekstowym
@@ -27,5 +27,5 @@ error:
     mov dword [0xb8000], 0x4f524f45
     mov dword [0xb8004], 0x4f3a4f52
     mov dword [0xb8008], 0x4f204f20
-    mov byte  [0xb800a], al
+    mov byte [0xb800a],  al
     hlt

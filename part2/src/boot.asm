@@ -9,12 +9,17 @@ bits    32
 start:
     ; inicjacja stacku
     ; w procesorach potomnych dla i386 stack zaczyna się od jego góry i kończy na spodzie
-    mov esp, stack_top
-    
+    mov  esp, stack_top
     ; w celu testu procedury sprawdzenia multiboot należy odkomentować poniższą linijkę
     ; mov eax, 0
     ; wywołanie procedury sprawdzenia multiboot
     call multiboot_check
+    
+    ; wywołanie procedury sprawdzenia CPUID
+    call cpuid_check
+
+    ; wywołanie prrocedury sprawdzenia longmode
+    call long_mode_check
 
     ; wypisanie "OK" na ekranie
     ; adres 0x000b8000 jest na tym etapie adresem danych wypisywanych w trybie tekstowym
@@ -39,6 +44,7 @@ error:
     mov byte [0xb800a],  al
     hlt
 
+
 ; procedura odpowiedzialna za sprawdzenie czy kernel był odpalony z systemu multiboot
 ; potem będziemy wykorzystywać niektóre własciwości tego systemu
 multiboot_check:
@@ -50,13 +56,66 @@ multiboot_check:
     ; jeśli nie równe, skaczemu do wywołania błędu
     jne .multiboot_error
     ret
-    
     ; jeśli procedura nie zadziała poprawnie musimy zgłosić błąd
 .multiboot_error:
-    mov  al, "0"
+    mov  al, "M"
     call error
 
 
+; sprawdzenie czy CPUID jest dostępne poprzez obrrócenie bitu 21 w fejestrze FLAGS
+cpuid_check:
+    ; skopiowane FLAGS do EAX używając stack-u
+    ; pushfd wypycha FLAGS na stack
+    pushfd
+    pop eax
+
+    ; kopiowanie FLAGS z EAX do ECX
+    mov ecx, eax
+
+    ; obrócenie bitu 21
+    xor eax, 1 << 21
+
+    ; ustawienie rejestru FLAGS na wartość z EAX z obróconym bitem 21
+    push eax
+    popfd
+
+    ; ponowne skopiowanie FLAGS do EAX, jeśli bit się obrócił to posiadamy CPUID
+    pushfd
+    pop eax
+
+    ; przywrócenie początkowej wersji rejestru FLAGS
+    push ecx
+    popfd
+
+    ; jeżeli EAX i ECX są równe to znaczy że bit 21 nie został obrucony co znaczy że nie posiadamy CPUID
+    cmp eax, ecx
+    je  .cpuid_error
+    ret
+.cpuid_error:
+    mov al, "C"
+    jmp error
+
+
+long_mode_check:
+    ; sprawdzenie czy rozszerzone informacje o pocesorze są dostępne
+    mov eax, 0x80000000
+    cpuid                  
+    ; minimalna wersja z longmode to 0x80000001, jeśli jest mniej to wywołujemy błąd
+    cmp eax, 0x80000001
+    jb  .long_mode_error
+
+    ; sprawdzenie czy longmode jest dostępny
+    ; argument dla CPUID do uzyskania rozszezrzonych informacji 
+    mov eax, 0x80000001
+    cpuid
+
+    ; sprawdznie czy LM-bit jest ustawiony w EDX, jeśli nie to wywołujemy błąd
+    test edx, 1 << 29
+    jz   .long_mode_error
+    ret
+.long_mode_error:
+    mov al, "L"
+    jmp error
 
 ; sekcja danych statycznych
 section .bss
