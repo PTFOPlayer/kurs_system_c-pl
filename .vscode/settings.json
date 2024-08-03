@@ -1,0 +1,5 @@
+{
+    "files.associations": {
+        "cpuid.h": "c"
+    }
+}

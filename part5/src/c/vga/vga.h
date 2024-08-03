@@ -1,4 +1,7 @@
+#pragma once
+
 #include "../int.h"
+#include "colors.h"
 
 const u8 BUFFER_HEIGHT = 25;
 const u8 BUFFER_WIDTH = 80;
@@ -9,27 +12,6 @@ void kputs(char *);
 void kputc(char);
 void kclear();
 void kshift_buffer();
-
-// 4 bitowy kolor
-enum Color
-{
-    Black = 0,
-    Blue = 1,
-    Green = 2,
-    Cyan = 3,
-    Red = 4,
-    Magenta = 5,
-    Brown = 6,
-    LightGray = 7,
-    DarkGray = 8,
-    LightBlue = 9,
-    LightGreen = 10,
-    LightCyan = 11,
-    LightRed = 12,
-    Pink = 13,
-    Yellow = 14,
-    White = 15,
-};
 
 // struct z danym znakiem i jego kolorem
 // structy w C są sekwencyjne a więc kolejność ma znaczenie

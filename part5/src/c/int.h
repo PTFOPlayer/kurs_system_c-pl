@@ -1,3 +1,5 @@
+#pragma once
+
 typedef unsigned char u8;
 typedef signed char i8;
 
