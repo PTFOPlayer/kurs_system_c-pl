@@ -16,7 +16,7 @@ obj_files := $(wildcard build/*.o)
 
 CFLAGS = -m64 -nostdlib -nostdinc -fno-builtin -fno-stack-protector \
              -nostartfiles -nodefaultlibs -Wall -Wextra -Werror -c 
-.PHONY: all clean run iso c
+.PHONY: all clean run run_kvm iso
 
 all: $(kernel)
 
@@ -25,6 +25,10 @@ clean:
 
 run: $(iso)
 	@qemu-system-x86_64 -cdrom $(iso)
+
+run_kvm: $(iso)
+	@qemu-system-x86_64 --enable-kvm -cpu host -cdrom $(iso)
+
 
 iso: $(iso)
 
