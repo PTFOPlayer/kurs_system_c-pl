@@ -45,25 +45,20 @@ error:
     mov byte [0xb800a],  al
     hlt
 
-
-; procedura odpowiedzialna za sprawdzenie czy kernel był odpalony z systemu multiboot
-; potem będziemy wykorzystywać niektóre własciwości tego systemu
 multiboot_check:
-    ; z dokumentacji multiboot wiemy że bootloader ładuje na start wartość do rejestru EAX
-    ; EAX = 0x36d76289
-    ; jeśli w EAX jest ta wartość to korzystamy z multiboot
-    ; w przeciwnym razie w EAX będzie 0 ponieważ domyślny start jest na pustych rejestrach
     cmp eax, 0x36d76289
+
     ; jeśli nie równe, skaczemu do wywołania błędu
     jne .multiboot_error
     ret
+    
     ; jeśli procedura nie zadziała poprawnie musimy zgłosić błąd
 .multiboot_error:
     mov  al, "M"
     call error
 
 
-; sprawdzenie czy CPUID jest dostępne poprzez obrrócenie bitu 21 w fejestrze FLAGS
+; sprawdzenie czy CPUID jest dostępne poprzez obrócenie bitu 21 w rejestrze FLAGS
 cpuid_check:
     ; skopiowane FLAGS do EAX używając stack-u
     ; pushfd wypycha FLAGS na stack
@@ -80,7 +75,7 @@ cpuid_check:
     push eax
     popfd
 
-    ; ponowne skopiowanie FLAGS do EAX, jeśli bit się obrócił to posiadamy CPUID
+    ; ponowne skopiowanie FLAGS do EAX, jeśli bit się obrócił z powrotem to posiadamy CPUID
     pushfd
     pop eax
 
