@@ -6,6 +6,19 @@ W momencie uruchomienia komputera BIOS wykonuje self test i rutyny inicjalizacyj
 
 My nie będziemy pisać bootloadera, jest to zbyt skomplikowane i czasochłonne, zamiast tego użyjemy `GRUB2`.
 
+## Struktura projektu 
+
+```
+|---Makefile
+|---build
+|   | ...
+|---src
+    |---boot.asm
+    |---multiboot_header.asm
+    |---linker.ld
+    |---grub.cfg
+```
+
 ## Multiboot
 
 Na szczęście istnieje standardowy bootloader: [multiboot](https://en.wikipedia.org/wiki/Multiboot_specification).
@@ -24,7 +37,7 @@ Aby użyć bootloader-a `multiboot` musimy zacząć pisanie naszego kernela od n
 Konwertująć do assembly x86:
 > plik: src/multiboot_header.asm
  
-```nasm
+```x86asm
 section .multiboot_header
 header_start:
     ; liczba magiczna
@@ -56,7 +69,7 @@ Aby nasz kernel mógł wystartować musi istnieć jakiś kod który będzie móg
 
 > plik: src/boot.asm
 
-```
+```x86asm
 ; definicja miejsca zaczęcia programu
 global  start
 
