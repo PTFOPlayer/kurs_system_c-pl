@@ -9,3 +9,4 @@
 ## Part 3 - paging
 ## Part 4 - C
 ## Part 5 - vga
+## Part 6 - przykładowy STDLIB
