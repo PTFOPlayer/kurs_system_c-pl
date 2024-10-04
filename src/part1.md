@@ -34,7 +34,7 @@ Aby użyć bootloader-a `multiboot` musimy zacząć pisanie naszego kernela od n
 | tags          | nie zdefiniowane         | wartości są różne w zależności od zastosowania |
 | end tags      | (uint16, uint16, uint32) | (0,0,8) - tag kończący kernel                  |
 
-Konwertująć do assembly x86:
+Konwertując do assembly x86:
 > plik: src/multiboot_header.asm
  
 ```x86asm
