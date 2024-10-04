@@ -64,7 +64,8 @@ multiboot_check:
 Sprawdzenie obecności CPUID wykonuje się poprzed obrót bitu 21 w rejestrze FLAGS.
 Jeżeli uda nam się poprawnie obrócić bit, wpisać wartość do rejestru FLAGS i pobrać ją ponownie i w trakcie tej operacji bit 21 wróci do swojego początkowego stanu to zestaw instrukcji CPUID jest dostępny.
 
-```x86
+> plik: src/boot.asm
+```x86asm
 cpuid_check:
     ; skopiowane FLAGS do EAX używając stack-u
     ; pushfd wypycha FLAGS na stack
@@ -105,6 +106,7 @@ Ostatnim krokiem dla nas jest sprawdzenie czy dostępny jest tryb 64 bitowy. Wyw
 
 Instrukcja `Cpuid` z argumentem `0x80000001` ładuje do głównych 4 rejesetrów dużo informacji na temat procesora, w tym informacje o dostępnych trybach działania oraz posiadanych zestawach instrukcji. Po wywołaniu tej instrukcji w rejestrze `EDX` na bicie 29 znajduje się informacja czy longmode jest dostępny.
 
+> plik: src/boot.asm
 ```x86asm
 long_mode_check:
     ; sprawdzenie czy rozszerzone informacje o pocesorze są dostępne
@@ -127,3 +129,39 @@ long_mode_check:
     mov al, "L"
     jmp error
 ```
+
+## Wykorzystanie testów
+
+Testy już są napisane teraz trzeba je wywołać w odpowiedniej kolejności.
+
+1. Multiboot
+2. CPUID
+3. Longmode
+
+A więc po ich dodaniu w `start` będzie wyglądał następująco:
+
+> plik: src/boot.asm
+```x86asm
+...
+
+start:
+    ; w procesorach potomnych dla i386 stack zaczyna się od jego góry i kończy na spodzie
+    mov  esp, stack_top
+
+    ; wywołanie procedury sprawdzenia multiboot
+    call multiboot_check
+    
+    ; wywołanie procedury sprawdzenia CPUID
+    call cpuid_check
+
+    ; wywołanie prrocedury sprawdzenia longmode
+    call long_mode_check
+
+...
+```
+
+## Uruchomienie
+
+Jeżeli wszystko zadziałało poprawnie, po wykonaniu komendy `make run` powinniśmy zobaczyć taki obraz w maszynie:
+
+![image](./photos/part2_working.png)

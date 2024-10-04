@@ -4,7 +4,7 @@ bits    32
 
 
 ; metoda odpowiedzialna za zapełnienie tablic P2-P4 odpowiednimi adresami
-set_up_pageing:
+set_up_paging:
     ; mapowanie P4 do P3
     mov eax, p3_table
     ; ustawienie flag OBECNA + ZAPISYWALNA
