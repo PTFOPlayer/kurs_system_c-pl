@@ -26,7 +26,7 @@ start:
     call long_mode_check
 
     ; wywołanie metod odpowiedzialnych za paging
-    call set_up_pageing
+    call set_up_paging
     call enable_paging    
 
 
@@ -83,6 +83,8 @@ stack_top:
 
 ; sekcja danych surowych
 section .rodata
+
+// nowe GDT
 gdt64:
     dq 0
 .code: equ $ - gdt64

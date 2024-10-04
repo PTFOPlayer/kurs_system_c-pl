@@ -10,9 +10,7 @@ start:
     ; inicjacja stacku
     ; w procesorach potomnych dla i386 stack zaczyna się od jego góry i kończy na spodzie
     mov  esp, stack_top
-    
-    ; w celu testu procedury sprawdzenia multiboot należy odkomentować poniższą linijkę
-    ; mov eax, 0
+
     ; wywołanie procedury sprawdzenia multiboot
     call multiboot_check
     
