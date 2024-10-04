@@ -31,3 +31,13 @@ u32 prand(u32 seed) {
     seed = seed ^ (seed >> 15);
     return seed;
 }
+
+void memcpy(u8 *src, u8 *dest, u32 len) {
+    for (u32 i = 0; i < len; i++)
+        dest[i] = src[i];
+}
+
+void meminit(u8 byte , u8 *dest, u32 len) {
+    for (u32 i = 0; i < len; i++)
+        dest[i] = byte;
+}
