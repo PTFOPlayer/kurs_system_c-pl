@@ -1,6 +1,6 @@
 # Paging - Part 3
 
-Paging, jest to metoda zarządzania pamięcią która oddziela pamięć wirtualną od pamięci fizycznej. Przestrzeń adresowa jest podzielona na równego rozmiaru "strony" i `page table` definiuje który adres wirtualny odpowiada kßórego madresowi fizycznemu.
+Paging, jest to metoda zarządzania pamięcią która oddziela pamięć wirtualną od pamięci fizycznej. Przestrzeń adresowa jest podzielona na równego rozmiaru "strony" i `page table` definiuje który adres wirtualny którego któremu  adresowi fizycznemu.
 
 W `x86_64` rozmair strony to 4096 bajtów i 4 poziomiwe "strony", każda ze "stron" posiada 512, 8 bajtowych sektorów. 
 
@@ -35,3 +35,10 @@ Paging nie oznacza możliwości alokacji na heap. Do tego trzeba dalej napisać 
 Paging nie jest zawsze taki sam, w przypadku bardzo dużej ilości pamięci inaczej się rozkłada strony. Są również bardziej zaawansowane metody translacji adresów.
 
 Paging jest ściśle wymagany przez tryb 64 bitowy, bez niego procesor nie wejdzie w ten tryb i wykona przerwanie które kończy się instrukcją `halt`.
+
+## Ktoś może zapytać, po co nam paging, co umożliwia?
+Paging jest konieczny do wejścia do trybu 64 bitowego który jest... tak naprawdę 48 bitowy jeśli patrzymy na adresowanie. Maksymalna ilość adresów bezpośrednio w TLB to 2^48 czyli *teoretycznie* możliwe jest adresowanie 32 TB pamięci RAM. 
+
+Ale czemu *teoretycznie*? -> Musimy jeszcze wziąć pod uwagę pamięć cache oraz pamięć `SWAP` lub architekturę NUMA (jej nie będziemy implementować aby wszystko uprościć). 
+
+Te typy pamięci są bardzo ważne z różnych powodów w które nie chcę się zagłębiać ale żeby poprawnie działały musi istnieć paging który będzie nam tłumaczył adresy fizyczne tych obszarów na adresy wirtualne które będą możliwe do użycia przez procesor i programy które wykonuje. 

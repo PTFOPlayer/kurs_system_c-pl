@@ -1,0 +1,1 @@
+# Używane instrukcje ASM
