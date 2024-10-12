@@ -41,3 +41,13 @@ void meminit(u8 byte , u8 *dest, u32 len) {
     for (u32 i = 0; i < len; i++)
         dest[i] = byte;
 }
+
+void outPort(u16 port, u8 byte) {
+    asm volatile("out %1, %0" : : "dN" (port), "a" (byte) );
+}
+
+char inPort(u16 port) {
+    char byte; 
+    asm volatile("in %1, %0" : "=a" (byte) : "dN" (port) );
+    return byte;
+}
