@@ -1,5 +1,46 @@
 # Paging - Part 3
 
+## Zmiany w projekcie
+
+Tą część zaczniemy inaczej bo od zmian które następują w projecie. 
+
+Nowa struktura projektu:
+```
+|---Makefile
+|---build
+|   | ...
+|---src
+    |---boot
+    |   |---checks
+    |   |   |---cpuid.asm
+    |   |   |---longmode.asm
+    |   |   |---multiboot.asm
+    |   |---paging.asm
+    |---boot.asm
+    |---multiboot_header.asm
+    |---linker.ld
+    |---grub.cfg
+```
+
+Jak widzimy pojawiło nam sie łacznie 4 nowe pliki:
+- cpuid.asm
+- longmode.asm
+- multiboot.asm
+- paging.asm
+
+Plik `paging.asm` zostanie wyjaśniony później a na ten moment zajmijmy się pierwszymi trzema plikami. Do tych plików zostały przeniesione testy które wcześniej znajdowały się w pliku boot.asm w celu lekkiego uprzątnięcia kodu. Teraz trzeba te pliki importować w następujący sposób:
+
+> plik: boot.asm
+```x86asm
+%include "src/boot/checks/multiboot.asm"
+%include "src/boot/checks/cpuid.asm"
+%include "src/boot/checks/longmode.asm"
+```
+
+Ważne jest również aby wszystkie te pliki zaczynały się od `bits 32` jako że jestesmy nadal w trybie 32 bitowym.
+
+## Wprowadzenie
+
 Paging, jest to metoda zarządzania pamięcią która oddziela pamięć wirtualną od pamięci fizycznej. Przestrzeń adresowa jest podzielona na równego rozmiaru "strony" i `page table` definiuje który adres wirtualny którego któremu  adresowi fizycznemu.
 
 W `x86_64` rozmair strony to 4096 bajtów i 4 poziomiwe "strony", każda ze "stron" posiada 512, 8 bajtowych sektorów. 
@@ -42,3 +83,27 @@ Paging jest konieczny do wejścia do trybu 64 bitowego który jest... tak napraw
 Ale czemu *teoretycznie*? -> Musimy jeszcze wziąć pod uwagę pamięć cache oraz pamięć `SWAP` lub architekturę NUMA (jej nie będziemy implementować aby wszystko uprościć). 
 
 Te typy pamięci są bardzo ważne z różnych powodów w które nie chcę się zagłębiać ale żeby poprawnie działały musi istnieć paging który będzie nam tłumaczył adresy fizyczne tych obszarów na adresy wirtualne które będą możliwe do użycia przez procesor i programy które wykonuje. 
+
+## Inplementacja
+
+W pierwszym kroku musimy na nasze page-e stworzyć obszar na stacku. Najłatwiej będzie to zrobić modyfikując obszar danych statycznych `.bss`
+
+> plik: boot.asm
+```x86asm
+; sekcja danych statycznych
+section .bss
+align 4096
+; zarezerwowanie miejsca na kolejne PAGE-e do adresowania pamięci
+p4_table:
+    resb 4096
+p3_table:
+    resb 4096
+p2_table:
+    resb 4096
+
+stack_bottom:
+    resb 64
+stack_top:
+``` 
+
+Pojawiły nam tu się 3 strony pamięci p2, p3 oraz p4

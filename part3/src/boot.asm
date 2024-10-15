@@ -72,12 +72,10 @@ p2_table:
 
 ; label ułatwiający nam znalezienie spodu stack-u 
 stack_bottom:
-
 ; zarezerwowanie miejsca na stack
 ; ta przestrzeń będzie używana tylko i wyłącznie przez część napisaną w ASM
 ; dla pewności rezerwujemy 64 bajty, wystarczył by 32
     resb 64
-
 ; label ułatwiający nam znalezienie góry stack-u
 stack_top:
 
@@ -86,9 +84,9 @@ section .rodata
 
 // nowe GDT
 gdt64:
-    dq 0
+    dq 0        // null segment
 .code: equ $ - gdt64
-    dq (1<<43) | (1<<44) | (1<<47) | (1<<53)
+    dq (1<<43) | (1<<44) | (1<<47) | (1<<53) // code segment
 .pointer:
     dw $ - gdt64 - 1
     dq gdt64
