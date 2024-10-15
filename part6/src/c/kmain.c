@@ -1,9 +1,9 @@
 
 #include "cpuid/cpuid.h"
 #include "int.h"
+#include "keyboard.h"
 #include "stdlib.h"
 #include "vga/vga.h"
-#include "keyboard.h"
 
 void kmain() {
     // testowanie wypisywania na VGA
@@ -36,20 +36,24 @@ void kmain() {
     u16 ps2_control_port = 0x64;
     outPort(ps2_control_port, 0xFF);
 
-
-    char last = 0;
     u16 cnt = 0;
+    u8 scan_mask = 0b01111111;
+    u8 press_lock = 0;
     while (1) {
         if (!cnt) {
-            unsigned char input = inPort(ps2_io_port);
-            unsigned char scan = input & 0x7F;
-            if (scan != last)
-            {   
-                last = scan;
-                kputc(keys[scan]);
+            u8 input = inPort(ps2_io_port);
+            u8 scan = input & scan_mask;
+            u8 pressed = input & ~scan_mask;
+            if (!pressed) {
+                if (press_lock == 0) {
+                    kputc(keys[scan]);
+                }
+                press_lock++;
+            } else {
+                press_lock = 0;
             }
         }
-        cnt ++;
+        cnt++;
     }
 
     asm("hlt");
