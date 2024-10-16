@@ -1,3 +1,4 @@
+#pragma once
 #include "int.h"
 // function-like macro
 #define swap(x, y)        \

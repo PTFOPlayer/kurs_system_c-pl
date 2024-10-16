@@ -16,8 +16,166 @@ mov rax, rbx
 ```
 kopiuje `rbx` to `rax`
  
+### cmp
+
+dokonuje porównania na:
+- rejestr - stała
+- rejestr - rejestr
+- rejestr - pamięć
+
+Porównanie dokonywanie jest przy użyciu flag rejestru `flags`, `CF`, `ZF`, `PF`, uzyskując następujące możliwe typy porównań:
+- `=`
+- `<`
+- `>`
+- `<=`
+- `>=`
+- `!=`
+
+```x86asm
+    cmp eax, 0x36d76289
+```
+
+dokona porównania rejestru `eax` do wartości `0x36d76289`
+
+### je, jne, jz, jnz
+
+> wszystkie skoki warunkowe są wykonywane po wcześniejszym porównaniu
+
+- `je` - skacze jeśli operandy są równe
+- `jne` - skacze jeśli operandy są nierówne 
+- `jz` - skacze jeśli jest ustawiona flaga `ZF` (zero)
+- `jnz` - skacze jeśli nie jest ustawiona flaga `ZF` (zero)
+  
+```x86asm
+    mov rcx, 0
+loop:
+    ...             ; zrób coś w pętli
+    inc rcx         ; inkrementacja rejestru rcx
+    cmp rcx, 10     ; porównanie
+    je loop         ; skok warunkowy
+
+    ...             ; kod po zakończeniu pętli
+```
+w powyższy sposób możemy zrealizować pętle która w C wyglądała by tak:
+```C
+for(int i = 0; i != 10; i++) {
+    ...
+}
+```
+
+### jl, jb, jle, jbe
+
+> wszystkie skoki warunkowe są wykonywane po wcześniejszym porównaniu
+
+- `jl` - skacze jeśli operand pierwszy jest mniejszy od drugiego, biorąc pod uwagę znak
+- `jb` - skacze jeśli operand pierwszy jest mniejszy od drugiego, nie biorąc pod uwagę znaku
+- `jle` - skacze jeśli operand pierwszy jest mniejszy bądź równy drugiemu, ze znakiem
+- `jbe` - skacze jeśli operand pierwszy jest mniejszy bądź równy drugiemu, bez znaku
+
+```x86asm
+    mov rcx, 0
+loop:
+    ...             ; zrób coś w pętli
+    inc rcx         ; inkrementacja rejestru rcx
+    cmp rcx, 10
+    jl loop
+
+    ...             ; kod po zakończeniu pętli
+```
+w powyższy sposób możemy zrealizować pętle która w C wyglądała by tak:
+```C
+for(int i = 0; i < 10; i++) {
+    ...
+}
+```
+
+### jg, ja, jge, jae 
+
+> wszystkie skoki warunkowe są wykonywane po wcześniejszym porównaniu
+
+- `jg` - skacze jeśli operand pierwszy jest większy od drugiego, biorąc pod uwagę znak
+- `ja` - skacze jeśli operand pierwszy jest większy od drugiego, nie biorąc pod uwagę znaku
+- `jge` - skacze jeśli operand pierwszy jest większy bądź równy drugiemu, ze znakiem
+- `jae` - skacze jeśli operand pierwszy jest większy bądź równy drugiemu, bez znaku
+
+```x86asm
+    mov rcx, 10
+loop:
+    ...             ; zrób coś w pętli
+    dec rcx         ; dekrementacja rejestru rcx
+    cmp rcx, 0
+    jg loop
+
+    ...             ; kod po zakończeniu pętli
+```
+w powyższy sposób możemy zrealizować pętle która w C wyglądała by tak:
+```C
+for(int i = 10; i > 0; i--) {
+    ...
+}
+```
+
+### call `<metoda>`
+
+Wykonuje skok bezwarunkowy jednocześnie wypychając aktualny adres programu na stack w celu późniejszego powrotu. 
+
+```x86asm
+mov rax, 10
+mov rbx, 20
+call add
+...             ; tutaj rax ma wartość 30
+hlt             ; zatrzymanie programu aby uniknąć nieporządanego przejścia do `add`
+
+add:
+    add rax, rbx
+    ret         ; instrukcja powrotu z metody
+```
+
+### and, or, xor, ...
+
+Instrukcje logiczne, trzeba pamiętać że wykonują one operacje na każdym bicie wartości z osobna i nie zwracają wartości bool. Można je wykorzystać jako forma porównania.
+
+```x86asm
+mov al, 0b11110000
+mov bl, 0b00111100
+
+and al, bl
+...         ; tutaj al ma wartość 0b00110000
+```
+
+### add, sub, mul, ...
+
+Instrukcje arytmetyczne, w przypadku dzielenia trzeba pamiętać że dzielimy liczby całkowite i wynik skłąda się z wyniku i reszty, gdzie wynik jest wstawiany zawsze w rejestr `rax` a reszta `rdx` (lub mniejsze w przypadku używania mniejszych operacji)
+
+```x86asm
+mov rax, 10
+mov rbx, 10
+
+add rax, rbx 
+...         ; rax ma wartość 20
+```
+
+```x86asm
+xor rdx, rdx    ; czyszczenie rejestru rdx, xor jest wydajniejszy niż `mov rdx, 0`
+mov rax, 81    
+mov rbx, 10
+
+div rbx         ; zawsze dzielimy rax przez jakąś wartość więc instrukcja przyjmuje jeden operand
+...             ; rax ma teraz wartość 8 a rdx 1 
+```
+
+### inb, outb
+
+instrukcje wejścia/wyjścia portów procesora (ex. 0x60 dla PS2)
+
+```x86asm
+outb 0x64, 0xff     ; wysłanie do portu 0x64 (ps2 control) wartości 0xff
+```
 
 ## Pseudo instrukcje
 
-- dd -> wstawia w swoim miejscu w *binarce* 32 bity o podanej wartości
-- dw -> wstawia w swoim miejscu w *binarce* 16 bitów o podanej wartości
+- dq -> definiuje 64 bitową zmienną w miejscu wykonania pseudo instrukcji
+- dd -> definiuje 32 bitową zmienną w miejscu wykonania pseudo instrukcji
+- dw -> definiuje 16 bitową zmienną w miejscu wykonania pseudo instrukcji
+- resb -> rezerwuje podaną ilość bajtów (ex: `resb 64`, rezerwuje 64 bajty)
+
