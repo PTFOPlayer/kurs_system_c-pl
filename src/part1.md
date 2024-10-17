@@ -142,3 +142,5 @@ menuentry "os" {
 ```
 
 Ten plik definiuje nam w jaki sposób ma być stworzony plik ISO naszego systemu. `menuentry` oznacza nazwę która będzie się pojawiać w tabeli grub2, następnie w klamerkach definiujemy ścieżkę do binarki kernela oraz w następnej linijce nazwę punktu wejścia.
+
+> przydatne informacje na temat użycia grub-a w tego typu projektach: https://wiki.osdev.org/GRUB

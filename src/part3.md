@@ -47,6 +47,14 @@ W `x86_64` rozmair strony to 4096 bajtów i 4 poziomiwe "strony", każda ze "str
 
 ![image](./photos/paging.png)
 
+Strony:
+- Page-Map Level-4 Table (PML4),
+- Page-Directory Pointer Table (PDP),
+- Page-Directory Table (PD),
+- the Page Table (PT).
+
+Mi się te nazwy nie podobają więc będziemy używać odpowiednio nazw od P4..P1 lub L4..L1.
+
 ## Struktura sektoru strony
 
 | Bity  | Nazwa                 | Opis                                                              |
@@ -139,24 +147,87 @@ set_up_pageing:
     jne .map_p2
 
     ret
+```
+
+Trochę to długie ale najłatwiej będzie wytłumaczyć to za jednym razem.
+
+Pierwsze dwa mapowania są dosyć proste, bierzemy adres wyższej tabeli za pomocą `mov`:
+```x86asm
+mov eax, p3_table
+``` 
+Następnie nadajemy bity `present` i `writable` wyższym stronom za pomocą instrukcji `or`:
+```x86asm
+or eax, 0b11
+```
+I ostatecznie ustawiamy pierwszy adres niższej strony na adres wyższej z ustawionymi bitami:
+```x86asm
+mov [p4_table], eax
+```
+
+Trochę bardziej się sprawa komplikuje w `p2_table` jak chcemy używać stron po 2MiB. Jest to również ostatnia strona a więc musimy mapować wszystkie adresy. W tym celu użyjemy pętli.
+
+```x86asm
+    ; mapowanie pól P2 do 2MiB stron pamięci 
+    mov ecx, 0         ; counter, takie i w pętli
+
+.map_p2:
+    mov eax, 0x200000  
+    mul ecx            ; eax zawiera teraz adres ecx * 0x200000
+    or eax, 0b10000011 
+    
+    mov [p2_table + ecx * 8], eax
+
+    inc ecx
+    cmp ecx, 512       
+    jne .map_p2
+
+    ret
+```
+
+Pętla mapuje tutaj wszystkie adresy w P2 do oddzielnych bloków po 2MiB. W każdej kolejnej stronie ustawiamy tym razem 3 flagi: `present`, `writable` i `huge`, ponieważ procesor musi wiedzieć że te strony są większe niż standardowe.
+
+Teraz można przejść do włączenia pagingu
+
+> plik: src/boot/paging.asm
+```x86asm
 
 ; włączenie pagingu
 enable_paging:
+    ; załadowanie P4 do rejestru CR3 (CPU sprawdza tutaj adres P4)
     mov eax, p4_table
     mov cr3, eax
 
+    ; włączenie flagi PAE (physical addres extension)
     mov eax, cr4
     or eax, 1 << 5
     mov cr4, eax
 
+    ; włączenie trybu long mode w rejestrze EFER MSR
     mov ecx, 0xC0000080
     rdmsr
     or eax, 1 << 8
     wrmsr
 
+    ; włączenie pagingu w CR0
     mov eax, cr0
     or eax, 1 << 31
     mov cr0, eax
 
 ret
 ```
+
+Patrząc na ten kod pewnie nikt nic nie zrozumie bez wiedzy o tym czym są rejestry `CR`. Rejestry `CR` są grupą rejestrów kontrolnych procesora za pomocą których możemy definiować takie rzeczy jak dostępne rozszerzenia procesora, dostępne akceleratory, sposoby zarządzania pamiecią, włączenie i wyłączenie przerwań oraz zaweirają one informacje o niektórych prostrzych błędach. W tym wypadku wykorzystamy parę z nich do włączenia paging-u.
+
+> informacje o rejestrach CR: https://wiki.osdev.org/CPU_Registers_x86#Extended_Control_Registers
+
+A więc idąc od góry.
+```x86asm
+    ; załadowanie P4 do rejestru CR3 (CPU sprawdza tutaj adres P4)
+    mov eax, p4_table
+    mov cr3, eax
+```
+Pierwsza instrukcja ładuje nam adres `p4_table` do rejestru `eax` a druga z rejestru `eax` do rejestru `CR3` (rejestr adresu pierwszej strony). 
+
+A czemu nie można odrazu załadować adresu strony do rejestru `CR3`? Na przykład pisząc `move cr3, p4_table`?
+
+Niesty ale rejestry `CRx` są ograniczone. Zapis do nich musi odbywać się z któregoś z rejestrów ogólnego przeznaczenia, oraz nie podlegają żadnym instrukcjom oprócz instrukcji `mov`. Jest to zrobione aby je zabezpieczyć przed przypadkowym zapisem.
