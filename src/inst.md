@@ -1,5 +1,13 @@
 # Używane instrukcje ASM
 
+## Używany ASM
+X86 jest dziwną architekturą... z jednej strony wszystko jest standaryzowane, a z drugiej mamy parę rodzajów assemblera. My będziemy krzystać z assemblera `NASM` z użyciem składni Intela.
+
+## Dobre materiały do nauki NASM
+- podstawowe informacje o nasm - https://wiki.osdev.org/NASM
+- podstawowe informacje o assembly - https://wiki.osdev.org/Assembly
+- dokumentacja `NASM` - https://www.nasm.us/docs.php
+
 ## Instrukcje
 ### mov
 wykonuje kopię płytką (kopiuje dane bezpośrednie):
