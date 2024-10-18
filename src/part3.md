@@ -92,7 +92,7 @@ Ale czemu *teoretycznie*? -> Musimy jeszcze wziąć pod uwagę pamięć cache or
 
 Te typy pamięci są bardzo ważne z różnych powodów w które nie chcę się zagłębiać ale żeby poprawnie działały musi istnieć paging który będzie nam tłumaczył adresy fizyczne tych obszarów na adresy wirtualne które będą możliwe do użycia przez procesor i programy które wykonuje. 
 
-## Inplementacja
+## Implementacja paging-u
 
 W pierwszym kroku musimy na nasze page-e stworzyć obszar na stacku. Najłatwiej będzie to zrobić modyfikując obszar danych statycznych `.bss`
 
@@ -186,12 +186,12 @@ Trochę bardziej się sprawa komplikuje w `p2_table` jak chcemy używać stron p
 
 Pętla mapuje tutaj wszystkie adresy w P2 do oddzielnych bloków po 2MiB. W każdej kolejnej stronie ustawiamy tym razem 3 flagi: `present`, `writable` i `huge`, ponieważ procesor musi wiedzieć że te strony są większe niż standardowe.
 
-Teraz można przejść do włączenia pagingu
+Teraz można przejść do włączenia paging-u
 
 > plik: src/boot/paging.asm
 ```x86asm
 
-; włączenie pagingu
+; włączenie paging-u
 enable_paging:
     ; załadowanie P4 do rejestru CR3 (CPU sprawdza tutaj adres P4)
     mov eax, p4_table
@@ -208,7 +208,7 @@ enable_paging:
     or eax, 1 << 8
     wrmsr
 
-    ; włączenie pagingu w CR0
+    ; włączenie paging-u w CR0
     mov eax, cr0
     or eax, 1 << 31
     mov cr0, eax
@@ -231,3 +231,50 @@ Pierwsza instrukcja ładuje nam adres `p4_table` do rejestru `eax` a druga z rej
 A czemu nie można odrazu załadować adresu strony do rejestru `CR3`? Na przykład pisząc `move cr3, p4_table`?
 
 Niesty ale rejestry `CRx` są ograniczone. Zapis do nich musi odbywać się z któregoś z rejestrów ogólnego przeznaczenia, oraz nie podlegają żadnym instrukcjom oprócz instrukcji `mov`. Jest to zrobione aby je zabezpieczyć przed przypadkowym zapisem.
+
+```
+    ; włączenie flagi PAE (physical addres extension)
+    mov eax, cr4
+    or eax, 1 << 5
+    mov cr4, eax
+
+    ; włączenie trybu long mode w rejestrze EFER MSR
+    mov ecx, 0xC0000080
+    rdmsr
+    or eax, 1 << 8
+    wrmsr
+```
+
+Te dwa segmenty odpowiadają za ustawienie odpowiednich flag w kolejnych rejestrach procesora. Tym razem spotykamy się z rejestrami `msr` których jest kilka tysięcy więc pozwolę sobie ich nie omawiać szczegółowo, natomiast uogólniając są to rejestry z których możemy dowiedzieć się wszystkich możliwych rzeczy o procesorze. Na przykład jego nazwę, ilość pamięci cache, liczniki instrukcji, a nawet jego napięcia pracy.
+
+Tym razem jednak wykorzystamy go do ustawienia bitu `longmode` który pozwoli nam włączenie trybu 64 bitowego (ważne żeby przewracać ten bit po ustawieniu pagingu i PAE). 
+
+Zapis tych rejestrów jest jeszcze bardziej skomplikowany bo z ich użyciem możemy zrobić o wiele więcej szkód. Aby odczytać rejestr MSR musimy znać jego adres i wprowadzić go do rejestru `ecx`, `mov ecx, 0xC0000080`. Pod adresem `0xC0000080` znajdziemy rejestr `MSR - EFER`, rozwinięcie skrutu to `model specific register - extended feature enable register`, trochę długa nazwa. Tłumacząc na polski, jest to rejestr którego używa się do załączenia rozszerzonych funkcjonalności procesora, właśnie takich jak tryb `longmode`.
+
+Jak już posiadamy odpowiedni adres w rejestrze `ecx` możemy przejść do odczytu rejestru. Używamy do tego intrukcji `rdmsr`, instrukcja ta zwraca dane na dwóch rejestrach: `eax` oraz `edx`. Teraz trzeba ustawić odpowiedni bit, w tym przypadku bit 8, ustawiamy go przesunięciem bitowym a następnie zapisujemy rejestr instrukcją `wrmsr` (write msr). 
+
+Teraz wystarczy załączyć paging w rejestrze CR0.
+
+```x86asm
+    ; włączenie pagingu w CR0
+    mov eax, cr0
+    or eax, 1 << 31
+    mov cr0, eax
+```
+
+Ostatecznie wystarczy wywołać dwie metody odpowiedzialne za paging i będzie on gotowy do użycia.
+> plik: src/boot.asm, sekcja start po testach
+```
+<testy>
+...
+    call set_up_pageing
+    call enable_paging    
+...
+```
+
+
+I teraz możemy przejśść do trybu 64 bitowego... prawda?
+
+Nie do końca... jest przed nami jeszcze dużo pracy, trzeba zdefiniować gdzie znajduje się kod.
+Pomimo tego że w folderze z kodem tej części znajduje się już kod odpowiedzialny za implementację GTD, pozwolę sobie wytłumaczyć je w części z użyciem C.
+
