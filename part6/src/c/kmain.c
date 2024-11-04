@@ -32,28 +32,13 @@ void kmain() {
         kputnl();
     }
 
-    u16 ps2_io_port = 0x60;
-    u16 ps2_control_port = 0x64;
-    outPort(ps2_control_port, 0xFF);
+    init_keyboard();
 
-    u16 cnt = 0;
-    u8 scan_mask = 0b01111111;
-    u8 press_lock = 0;
     while (1) {
-        if (!cnt) {
-            u8 input = inPort(ps2_io_port);
-            u8 scan = input & scan_mask;
-            u8 pressed = input & ~scan_mask;
-            if (!pressed) {
-                if (press_lock == 0) {
-                    kputc(keys[scan]);
-                }
-                press_lock++;
-            } else {
-                press_lock = 0;
-            }
+        char key = scan_keyboard();
+        if (key != OTHER) {
+            kputc(key);
         }
-        cnt++;
     }
 
     asm("hlt");

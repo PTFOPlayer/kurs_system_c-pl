@@ -15,16 +15,14 @@ void kshift_buffer();
 
 // struct z danym znakiem i jego kolorem
 // structy w C są sekwencyjne a więc kolejność ma znaczenie
-typedef struct VGAChar
-{
+typedef struct VGAChar {
     char ascii_char;
     u8 color;
 } VGAChar;
 
 // struct przechowujący informacje o pozycji w tekście
 // domyślny kolor oraz pointer do bufora VGA
-typedef struct Writer
-{
+typedef struct Writer {
     u8 position_width;
     u8 position_height;
     u8 default_color;
@@ -43,25 +41,28 @@ static Writer writer = {
 };
 
 // czyszczenie
-void kclear()
-{
+void kclear() {
     writer.position_width = 0;
     writer.position_height = 0;
 
-    VGAChar empty = {
-        .ascii_char = 0,
-        .color = 0};
+    VGAChar empty = {.ascii_char = 0, .color = 0};
 
     for (u8 width = 0; width < BUFFER_WIDTH; width++)
         for (u8 height = 0; height < BUFFER_HEIGHT; height++)
             writer.buffer[height * BUFFER_WIDTH + width] = empty;
 }
 
+void kclear_line() {
+    VGAChar empty = {.ascii_char = 0, .color = 0};
+
+    for (u8 width = 0; width < BUFFER_WIDTH; width++) {
+        writer.buffer[writer.position_height * BUFFER_WIDTH + width] = empty;
+    }
+}
+
 // wypisywanie charów
-void kputc(char ascii)
-{
-    if (ascii == '\n')
-    {
+void kputc(char ascii) {
+    if (ascii == '\n') {
         kputnl();
         return;
     }
@@ -69,29 +70,22 @@ void kputc(char ascii)
     u8 width = writer.position_width;
     u8 height = writer.position_height;
 
-    VGAChar colored_char = {
-        .ascii_char = ascii,
-        .color = writer.default_color};
+    VGAChar colored_char = {.ascii_char = ascii, .color = writer.default_color};
 
     writer.buffer[height * BUFFER_WIDTH + width] = colored_char;
 
     writer.position_width++;
-    if (writer.position_width > BUFFER_WIDTH)
-    {
+    if (writer.position_width > BUFFER_WIDTH) {
         writer.position_width = 0;
         writer.position_height++;
     }
 
-    if (writer.position_height > BUFFER_HEIGHT)
-        kshift_buffer();
+    if (writer.position_height > BUFFER_HEIGHT) kshift_buffer();
 }
 
 // nowa linia
-void kputnl()
-{
-    VGAChar empty = {
-        .ascii_char = 0,
-        .color = 0};
+void kputnl() {
+    VGAChar empty = {.ascii_char = 0, .color = 0};
 
     for (u8 width = writer.position_width; width < BUFFER_WIDTH; width++)
         writer.buffer[writer.position_height * BUFFER_WIDTH + width] = empty;
@@ -99,13 +93,15 @@ void kputnl()
     writer.position_height++;
     writer.position_width = 0;
 
-    if (writer.position_height > BUFFER_HEIGHT)
+    if (writer.position_height >= BUFFER_HEIGHT) {
         kshift_buffer();
+        writer.position_height--;
+        kclear_line();
+    }
 }
 
 // przesunięcie buffera VGA jeśli dojdzie do końca
-void kshift_buffer()
-{
+void kshift_buffer() {
     for (u8 height = 0; height < BUFFER_HEIGHT - 1; height++)
         for (u8 width = 0; width < BUFFER_WIDTH; width++)
             writer.buffer[height * BUFFER_WIDTH + width] =
@@ -113,10 +109,8 @@ void kshift_buffer()
 }
 
 // wypisanie stringów
-void kputs(char *ascii)
-{
-    while (*ascii != '\0')
-    {
+void kputs(char *ascii) {
+    while (*ascii != '\0') {
         kputc(*ascii);
         ascii++;
     }
