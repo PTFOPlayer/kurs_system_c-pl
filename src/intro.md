@@ -11,14 +11,14 @@ Kurs definitywnie nie jest dla osób które nie znają podstaw C. Większośc k
 ## Źródła wiedzy
 Warto znać dobre źródła wiedzy zabierając się za tak ciężki temat jak pisanie surowego systemmu operacyjnego.
 
-### wiki OSdev - https://wiki.osdev.org
+### wiki OSdev - [wiki.osdev.org](https://wiki.osdev.org)
 Jest to największe źródło wiedzy jeśli chodzi o tematykę pisania amatorskiego systemu operacyjnego
 
-### Dokumentacja Intela - https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html
+### Dokumentacja Intela - [intel-sdm](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html)
 Nie mam bladego pojęcia jakim cudem dałem radę to przeczytać ale znajomość tego jak działają procesory i co jest na nich możliwe bardzo pomaga w projektach z działu embedded.
 
-### Dokumentacja AMD - https://www.amd.com/en/developer.html
+### Dokumentacja AMD - [amd/developer](https://www.amd.com/en/developer.html)
 Pomimo tego że mniej popularna od intelowskiej, jest ona równie dobrym źródłem wiedzy na temat procesorów x86.
 
-### Philipp Oppermann, Blog, Edycja 1 - https://os.phil-opp.com/edition-1/
+### Philipp Oppermann, Blog, Edycja 1 - [phil-opp](https://os.phil-opp.com/edition-1/)
 To jest akurat kurs pisania systemu operacyjnego z użyciem języka RUST. Nastomiast wiele rzeczy z paru pierwszych działów jego bloga i tego kursu jest bardzo podobnych.
