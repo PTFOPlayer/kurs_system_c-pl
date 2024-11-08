@@ -82,11 +82,11 @@ stack_top:
 ; sekcja danych surowych
 section .rodata
 
-// nowe GDT
+; nowe GDT
 gdt64:
-    dq 0        // null segment
+    dq 0        ; null segment
 .code: equ $ - gdt64
-    dq (1<<43) | (1<<44) | (1<<47) | (1<<53) // code segment
+    dq (1<<43) | (1<<44) | (1<<47) | (1<<53) ; code segment
 .pointer:
     dw $ - gdt64 - 1
     dq gdt64

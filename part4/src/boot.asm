@@ -18,7 +18,7 @@ start:
     call long_mode_check
 
     call set_up_pageing
-    call enable_paging    
+    call enable_pageing    
 
 
     ; przejście do 64 bit
