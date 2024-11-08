@@ -30,7 +30,7 @@ set_up_pageing:
     ret
 
 ; włączenie pagingu
-enable_paging:
+enable_pageing:
     mov eax, p4_table
     mov cr3, eax
 
