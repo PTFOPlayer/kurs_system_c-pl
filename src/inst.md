@@ -187,3 +187,45 @@ outb 0x64, 0xff     ; wysłanie do portu 0x64 (ps2 control) wartości 0xff
 - dw -> definiuje 16 bitową zmienną w miejscu wykonania pseudo instrukcji
 - resb -> rezerwuje podaną ilość bajtów (ex: `resb 64`, rezerwuje 64 bajty)
 
+## Rejestry
+
+Hierarchia rejestrów jest dosyć prosta. W architekturze x86 szersze rejestry zawierają w sobie ich węższe odpowiedniki, na przykład `AX` (16 bit) składa się z `AL` i `AH` (8 bit) 
+
+### Rejestry ogólne
+| 64 bit | 32 bit | 16 bit | 8 bit - H   | 8 bit - L | Nazwa              |
+| ------ | ------ | ------ | ----------- | --------- | ------------------ |
+| RAX    | EAX    | AX     | AH          | AL        | Acumulator         |
+| RBX    | EBX    | BX     | BH          | BL        | Base               |
+| RCX    | ECX    | CX     | CH          | CL        | Counter            |
+| RDX    | EDX    | DX     | DH          | DL        | Data               |
+| RSI    | ESI    | SI     | nie dotyczy | SIL       | Source             |
+| RDI    | EDI    | DI     | nie dotyczy | DIL       | Destination        |
+| RSP    | ESP    | SP     | nie dotyczy | SPL       | Stack Pointer      |
+| RBP    | EBP    | BP     | nie dotyczy | BPL       | Stack Base Pointer |
+
+### Rejestr wskaźnika instrukcji
+| 64-bit | 32-bit | 16-bit | Nazwa               |
+| ------ | ------ | ------ | ------------------- |
+| RIP    | EIP    | IP     | Instruction pointer |
+
+
+### Rejestr EFLAGS (flagowy)
+| Bit   | Label | Nazwa                                                 |
+| ----- | ----- | ----------------------------------------------------- |
+| 0     | CF    | Carry flag (przepełnienie)                            |
+| 2     | PF    | Parity flag (parzystości)                             |
+| 4     | AF    | Auxiliary flag                                        |
+| 6     | ZF    | Zero flag (zero)                                      |
+| 7     | SF    | Sign flag (znaku)                                     |
+| 8     | TF    | Trap flag                                             |
+| 9     | IF    | Interrupt enable flag (przerwań)                      |
+| 10    | DF    | Direction flag                                        |
+| 11    | OF    | Overflow flag (przepełnienia)                         |
+| 12-13 | IOPL  | I/O privilege level                                   |
+| 14    | NT    | Nested task flag                                      |
+| 16    | RF    | Resume flag                                           |
+| 17    | VM    | Virtual 8086 mode flag (tryb kompatybilności 8086)    |
+| 18    | AC    | Alignment check                                       |
+| 19    | VIF   | Virtual interrupt flag (wirtualne przerwanie)         |
+| 20    | VIP   | Virtual interrupt pending (wirtualne przerwanie trwa) |
+| 21    | ID    | Able to use CPUID instructio (CPUID istnieje)         |
