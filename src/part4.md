@@ -4,10 +4,10 @@
 W tej cześci wreszcie wejdziemy w długo wyczekiwany tryb 64 bitowy. Wszystko jest już przygotowane oprócz jednej rzeczy... GDT.
 
 ## Czym jest GDT
-GDT przechowuje informacje o konkretnych segmentach pamięci. Informacje te muszą być dostępne w każdym momencie dla procesor, ponieważ może on ich potrzebować przy np. wychodzeniu z rutyny przerwania. Grub ustawił już za nas gotowe GDT 32 bitowe którego moglibyśmy używać jeśli chcielibyśmy pozostać w trym trybie, ale żeby przejść do trybu 64 bitowego musimy zdefiniować 64 bitowe GDT.
+GDT przechowuje informacje o konkretnych segmentach pamięci. Informacje te muszą być dostępne w każdym momencie dla procesora, ponieważ może on ich potrzebować przy np. wychodzeniu z rutyny przerwania. Grub ustawił już za nas gotowe GDT 32 bitowe, którego moglibyśmy używać jeśli chcielibyśmy pozostać w trym trybie, ale żeby przejść do trybu 64 bitowego musimy zdefiniować 64 bitowe GDT.
 
 ## Wygląd GDT
-GDT skłąda się z wielu wpisów, maksymalny rozmiar GDT to 65535 bajtów czyli 8192 wpisy (nitk w praktyce tylu nigdy nie używa), minimalna ilość to 2 wpisy: `NULL SEGMENT`, `CODE SEGMENT`, każdy wpis zajmuje 8 bajtów. GDT zawsze zaczyna się od `NULL SEGMENT`, jest to puste 8 bajtów które pozostają do dyspozycji dla procesora.
+GDT składa się z wielu wpisów, maksymalny rozmiar GDT to 65535 bajtów czyli 8192 wpisy (nikt w praktyce tylu nigdy nie używa), minimalna ilość to 2 wpisy: `NULL SEGMENT`, `CODE SEGMENT`, każdy wpis zajmuje 8 bajtów. GDT zawsze zaczyna się od `NULL SEGMENT`, jest to puste 8 bajtów, które pozostają do dyspozycji dla procesora.
 
 | Bity  | Nazwa      | Znaczenie                                                        |
 | ----- | ---------- | ---------------------------------------------------------------- |
@@ -45,7 +45,7 @@ gdt64:
 ...
 ```
 
-Tutaj zaczyna się trochę zabawa bo ustawiamy pewne bity które mają bardzo konkretne znaczenie. Rozbijmy to na parę części i odczytajmy co oznaczają konkretne bity z powyższej tabeli:
+Tutaj zaczyna się trochę zabaw bo ustawiamy pewne bity które mają bardzo konkretne znaczenie. Rozbijmy to na parę części i odczytajmy co oznaczają konkretne bity z powyższej tabeli:
 - `(1<<43)` - executable bit
 - `(1<<44)` - descriptor
 - `(1<<47)` - present
@@ -97,7 +97,7 @@ start:
 ...
 ```
 
-> mała wstawka, jeżeli będziemy chcieli zrobić coś więcej z naszym bardzo podstawowym kernelem, aktualne GDT jest nie wystarczające i musi ono być zrobione całkowicie inaczcej.
+> mała wstawka, jeżeli będziemy chcieli zrobić coś więcej z naszym bardzo podstawowym kernelem, aktualne GDT jest nie wystarczające i musi ono być zrobione całkowicie inaczej.
 
 ## Wejście w tryb 64 bit
 
@@ -148,7 +148,7 @@ A teraz możemy robić już co nam się żywnie podoba w trybie 64 bitowym.
 ![image](./photos/part4_working64_bit.png)
 
 ## Przejście do C
-**Ważne: zmienia się tutaj makefile, nie będę się o nim rozwodził bo została dodana jedynie kompilacja elementów napisanych w C za pomocą kompilatora gcc. Proszę o samodzielne skompiowane go z repozytorium.**
+**Ważne: zmienia się tutaj makefile, nie będę się o nim rozwodził, bo została dodana jedynie kompilacja elementów napisanych w C za pomocą kompilatora gcc. Proszę o samodzielne skopiowane go z repozytorium.**
 
 > plik src/c/kmain.c 
 ```c
@@ -223,7 +223,7 @@ char* addr = (char*)0xb8000;
 ```
 
 Powyższa linijka może być ciężka do zrozumienia przez osoby które nie miały za dużo doczynienia z niskopoziomowym C. 
-Mamy tutaj pointer do tablicy char-ów, ale nigdzie nie przydzielamy mu pamięci. Na poziomie jądra systemu nie mamy żadnego alokatora i dodatkowo adres tu widoczny to nie jest zwykła pamieć. To adres bufora VGA do którego zaraz będziemy wpisywać dane.
+Mamy tutaj pointer do tablicy char-ów, ale nigdzie nie przydzielamy mu pamięci. Na poziomie jądra systemu nie mamy żadnego alokatora i dodatkowo adres tu widoczny to nie jest zwykła pamięć. To adres bufora VGA do którego zaraz będziemy wpisywać dane.
 
 ```c
 while (to_print[i] != '\0')
