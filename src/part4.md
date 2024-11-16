@@ -78,8 +78,8 @@ Symbol ten jest aktualnym adresem, czyli to co wyliczamy jest długością nasze
 
 W tym momencie możemy załadować nasze GDT używając instrukcji `lgdt`, czyli dosłownie `Load GDT`.
 > plik src/boot.asm
-```
-...x86asm
+```x86asm
+...
 bits    32
 start:
     ; inicjacja stacku
