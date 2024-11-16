@@ -128,7 +128,7 @@ SECTIONS {
 }
 ```
 
-Plik linker.ld definiuje nam w jakie miejsca jest wstawiana która częśc programu. Na poczatku mamy `. = 1M;` jest to ignorowanie pierwszego MiB miejsca na nośniku, ponieważ znajdują się tam specjalne adresy. Następnie mamy sekcję `.boot` w której będzie informacja o standardzie multiboot a dopiero na końcu przechodzimy do właściwego kernela w sekcji `.text`.
+Plik linker.ld definiuje nam w jakie miejsca jest wstawiana która część programu. Na poczatku mamy `. = 1M;` jest to ignorowanie pierwszego MiB miejsca na nośniku, ponieważ znajdują się tam specjalne adresy. Następnie mamy sekcję `.boot` w której będzie informacja o standardzie multiboot a dopiero na końcu przechodzimy do właściwego kernela w sekcji `.text`.
 
 >plik: src/grub.cfg
 ```
