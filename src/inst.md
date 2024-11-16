@@ -228,4 +228,4 @@ Hierarchia rejestrów jest dosyć prosta. W architekturze x86 szersze rejestry z
 | 18    | AC    | Alignment check                                       |
 | 19    | VIF   | Virtual interrupt flag (wirtualne przerwanie)         |
 | 20    | VIP   | Virtual interrupt pending (wirtualne przerwanie trwa) |
-| 21    | ID    | Able to use CPUID instructio (CPUID istnieje)         |
+| 21    | ID    | Able to use CPUID instruction (CPUID istnieje)         |
