@@ -75,7 +75,7 @@ Mi się te nazwy nie podobają więc będziemy używać odpowiednio nazw od P4..
 
 ## Ograniczenia
 
-Używając bitu `huge page` na stronach poziomu trzeciego moglibyśmy mapować pierwszy 1GB naszego kernela do pojedyńczej strony co bo znacznie poprawiło jego responsywność i pozwoliło procesorowi na ustalenie lepszych zasad cache-owania. Niestety nie możemy tego zrobić ponieważ `huge page` na L3 został wprowadzony dopiero w generacji `Westmere` (seria Xeon), `Haswell` (seria Core I 4 gen), a więc aby zagwarantować kompatybilnośc z starszymi procesorami i maszynami wirtualnymi będziemy stosować bit `huge page` na stronach L2
+Używając bitu `huge page` na stronach poziomu trzeciego moglibyśmy mapować pierwszy 1GB naszego kernela do pojedyńczej strony co by znacznie poprawiło jego responsywność i pozwoliło procesorowi na ustalenie lepszych zasad cache-owania. Niestety nie możemy tego zrobić ponieważ `huge page` na L3 został wprowadzony dopiero w generacji `Westmere` (seria Xeon), `Haswell` (seria Core I 4 gen), a więc aby zagwarantować kompatybilnośc z starszymi procesorami i maszynami wirtualnymi będziemy stosować bit `huge page` na stronach L2
 
 Strony są przeszukiwane idąc od L4 do L1, przez co najpierw jest przeszukiwana najdawniej alokowana pamięć.
 
@@ -216,9 +216,9 @@ enable_paging:
 ret
 ```
 
-Patrząc na ten kod pewnie nikt nic nie zrozumie bez wiedzy o tym czym są rejestry `CR`. Rejestry `CR` są grupą rejestrów kontrolnych procesora za pomocą których możemy definiować takie rzeczy jak dostępne rozszerzenia procesora, dostępne akceleratory, sposoby zarządzania pamiecią, włączenie i wyłączenie przerwań oraz zaweirają one informacje o niektórych prostrzych błędach. W tym wypadku wykorzystamy parę z nich do włączenia paging-u.
+Patrząc na ten kod pewnie nikt nic nie zrozumie bez wiedzy o tym czym są rejestry `CR`. Rejestry `CR` są grupą rejestrów kontrolnych procesora za pomocą których możemy definiować takie rzeczy jak dostępne rozszerzenia procesora, dostępne akceleratory, sposoby zarządzania pamiecią, włączenie i wyłączenie przerwań oraz zaweirają one informacje o niektórych prostszych błędach. W tym wypadku wykorzystamy parę z nich do włączenia paging-u.
 
-> informacje o rejestrach CR: https://wiki.osdev.org/CPU_Registers_x86#Extended_Control_Registers
+> informacje o rejestrach CR: [wiki.osdev.org/CPU_Registers_x86]https://wiki.osdev.org/CPU_Registers_x86#Extended_Control_Registers
 
 A więc idąc od góry.
 ```x86asm
