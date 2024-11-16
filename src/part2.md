@@ -8,7 +8,7 @@ Z tego powodu musimy napisać odpowiednie testy które pozwolą na poprawne prze
 
 ## Struktura projektu
 
-Struktura projektu pozostaje bez zmian względem poprzedniej części. W następnej przeniesiemy check-i do oddzilenych plików
+Struktura projektu pozostaje bez zmian względem poprzedniej części. W następnej przeniesiemy check-i do oddzielnych plików
 
 ## Inicjacja stosu
 

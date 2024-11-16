@@ -61,9 +61,9 @@ Mi się te nazwy nie podobają więc będziemy używać odpowiednio nazw od P4..
 | ----- | --------------------- | ----------------------------------------------------------------- |
 | 0     | present               | strona znajduje się w pamięci                                     |
 | 1     | writable              | można zapisać do strony                                           |
-| 2     | user accesible        | dostępna na poziomie urzytkownika                                 |
+| 2     | user accesible        | dostępna na poziomie użytkownika                                  |
 | 3     | write through caching | bezpośredni zapis                                                 |
-| 4     | no cache              | nie urzywaj pamięci cache                                         |
+| 4     | no cache              | nie używaj pamięci cache                                          |
 | 5     | accesed               | CPU ustawia ten bit kiedy strona jest w użyciu                    |
 | 6     | dirty                 | CPU ustawia ten bit kiedy strona jest w trakcie zapisu            |
 | 7     | huge page/null        | strona rozszerzona do 2MB w Page Level 2 i do 1 GB w Page Level 3 |
