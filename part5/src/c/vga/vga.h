@@ -74,13 +74,9 @@ void kputc(char ascii) {
 
     writer.buffer[height * BUFFER_WIDTH + width] = colored_char;
 
-    writer.position_width++;
-    if (writer.position_width > BUFFER_WIDTH) {
-        writer.position_width = 0;
-        writer.position_height++;
-    }
+    writer.position_width++;    
 
-    if (writer.position_height > BUFFER_HEIGHT) kshift_buffer();
+    if (writer.position_width >= BUFFER_WIDTH) kputnl();
 }
 
 // nowa linia
