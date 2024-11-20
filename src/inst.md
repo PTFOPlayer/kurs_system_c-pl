@@ -4,9 +4,9 @@
 X86 jest dziwną architekturą... z jednej strony wszystko jest standaryzowane, a z drugiej mamy parę rodzajów assemblera. My będziemy krzystać z assemblera `NASM` z użyciem składni Intela.
 
 ## Dobre materiały do nauki NASM
-- podstawowe informacje o nasm - https://wiki.osdev.org/NASM
-- podstawowe informacje o assembly - https://wiki.osdev.org/Assembly
-- dokumentacja `NASM` - https://www.nasm.us/docs.php
+- podstawowe informacje o nasm - [wiki.odsev.org/NASM]https://wiki.osdev.org/NASM
+- podstawowe informacje o assembly - [wiki.osdev.org/Assembly]https://wiki.osdev.org/Assembly
+- dokumentacja `NASM` - [nasm.us/docs.php]https://www.nasm.us/docs.php
 
 ## Instrukcje
 ### mov
@@ -17,7 +17,7 @@ wykonuje kopię płytką (kopiuje dane bezpośrednie):
 ```x86asm
 mov dword[0xb8000], 0x2f4b2f4f
 ```
-wstawia wartość `0x2f4b2f4f` o rozmiarze 32 bitów (`double word`) na andres pamięci `0xb8000`
+wstawia wartość `0x2f4b2f4f` o rozmiarze 32 bitów (`double word`) na adres pamięci `0xb8000`
 
 ```x86asm
 mov rax, rbx
@@ -228,4 +228,4 @@ Hierarchia rejestrów jest dosyć prosta. W architekturze x86 szersze rejestry z
 | 18    | AC    | Alignment check                                       |
 | 19    | VIF   | Virtual interrupt flag (wirtualne przerwanie)         |
 | 20    | VIP   | Virtual interrupt pending (wirtualne przerwanie trwa) |
-| 21    | ID    | Able to use CPUID instructio (CPUID istnieje)         |
+| 21    | ID    | Able to use CPUID instruction (CPUID istnieje)         |

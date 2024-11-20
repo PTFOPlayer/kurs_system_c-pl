@@ -8,7 +8,7 @@ Z tego powodu musimy napisać odpowiednie testy które pozwolą na poprawne prze
 
 ## Struktura projektu
 
-Struktura projektu pozostaje bez zmian względem poprzedniej części. W następnej przeniesiemy check-i do oddzilenych plików
+Struktura projektu pozostaje bez zmian względem poprzedniej części. W następnej przeniesiemy check-i do oddzielnych plików
 
 ## Inicjacja stosu
 
@@ -102,14 +102,14 @@ cpuid_check:
 
 ## Test Longmode
 
-Ostatnim krokiem dla nas jest sprawdzenie czy dostępny jest tryb 64 bitowy. Wywołująć instrukcję `cpuid` z argumentem `0x80000000` spowoduje sprawdzenie maksymalnej dostępnej wersji CPUID w naszym procesorze, dla naszych potrzeb wystarczy wersja `0x80000001`.
+Ostatnim krokiem dla nas jest sprawdzenie czy dostępny jest tryb 64 bitowy. Wywołując instrukcję `cpuid` z argumentem `0x80000000` spowoduje sprawdzenie maksymalnej dostępnej wersji CPUID w naszym procesorze, dla naszych potrzeb wystarczy wersja `0x80000001`.
 
-Instrukcja `Cpuid` z argumentem `0x80000001` ładuje do głównych 4 rejesetrów dużo informacji na temat procesora, w tym informacje o dostępnych trybach działania oraz posiadanych zestawach instrukcji. Po wywołaniu tej instrukcji w rejestrze `EDX` na bicie 29 znajduje się informacja czy longmode jest dostępny.
+Instrukcja `Cpuid` z argumentem `0x80000001` ładuje do głównych 4 rejestrów dużo informacji na temat procesora, w tym informacje o dostępnych trybach działania oraz posiadanych zestawach instrukcji. Po wywołaniu tej instrukcji w rejestrze `EDX` na bicie 29 znajduje się informacja czy longmode jest dostępny.
 
 > plik: src/boot.asm
 ```x86asm
 long_mode_check:
-    ; sprawdzenie czy rozszerzone informacje o pocesorze są dostępne
+    ; sprawdzenie czy rozszerzone informacje o procesorze są dostępne
     mov eax, 0x80000000
     cpuid                  
     ; minimalna wersja z longmode to 0x80000001, jeśli jest mniej to wywołujemy błąd
@@ -117,11 +117,11 @@ long_mode_check:
     jb  .long_mode_error
 
     ; sprawdzenie czy longmode jest dostępny
-    ; argument dla CPUID do uzyskania rozszezrzonych informacji 
+    ; argument dla CPUID do uzyskania rozszerzonych informacji 
     mov eax, 0x80000001
     cpuid
 
-    ; sprawdznie czy LM-bit jest ustawiony w EDX, jeśli nie to wywołujemy błąd
+    ; sprawdzenie czy LM-bit jest ustawiony w EDX, jeśli nie to wywołujemy błąd
     test edx, 1 << 29
     jz   .long_mode_error
     ret
