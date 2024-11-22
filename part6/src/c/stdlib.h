@@ -9,22 +9,40 @@
         y = _x;           \
     }
 
-void itoa(i64 value, char *dest, i64 base)
-{
+void itoa(i64 ivalue, char *dest, i64 base) {
     u32 idx = 0;
-    while (value > 0)
-    {
-        *(dest + idx) = (value % base) + '0';
+
+    u8 neg = 0;
+    if (base == 10 && ivalue < 0) {
+        neg = 1;
+        ivalue = -ivalue;
+    }
+    u64 value = *((u64 *)&ivalue);
+
+    char *chars = "abcdefghijklmnoprstuvwxyz";
+    while (value != 0) {
+        i64 temp = value % base;
+
+        if (temp < 10) {
+            *(dest + idx) = temp + '0';
+        } else {
+            *(dest + idx) = chars[temp - 10];
+        }
+
         value /= base;
         idx++;
     }
 
-    for (u32 i = 0; i < idx / 2; i++)
-        swap(dest[i], dest[idx - i - 1]);
+    if (neg) {
+        *(dest + idx) = '-';
+        idx++;
+    }
+
+    for (u32 i = 0; i < idx / 2; i++) swap(dest[i], dest[idx - i - 1]);
 }
 
 // prosta funkcja hashująca
-u32 prand(u32 seed) {
+u64 prand(u64 seed) {
     seed = (seed ^ 61) ^ (seed >> 16);
     seed = seed + (seed << 3);
     seed = seed ^ (seed >> 4);
@@ -34,21 +52,19 @@ u32 prand(u32 seed) {
 }
 
 void memcpy(u8 *src, u8 *dest, u32 len) {
-    for (u32 i = 0; i < len; i++)
-        dest[i] = src[i];
+    for (u32 i = 0; i < len; i++) dest[i] = src[i];
 }
 
-void meminit(u8 byte , u8 *dest, u32 len) {
-    for (u32 i = 0; i < len; i++)
-        dest[i] = byte;
+void meminit(u8 byte, u8 *dest, u32 len) {
+    for (u32 i = 0; i < len; i++) dest[i] = byte;
 }
 
 void outPort(u16 port, u8 byte) {
-    asm volatile("out %1, %0" : : "dN" (port), "a" (byte) );
+    asm volatile("out %1, %0" : : "dN"(port), "a"(byte));
 }
 
 char inPort(u16 port) {
-    char byte; 
-    asm volatile("in %1, %0" : "=a" (byte) : "dN" (port) );
+    char byte;
+    asm volatile("in %1, %0" : "=a"(byte) : "dN"(port));
     return byte;
 }
