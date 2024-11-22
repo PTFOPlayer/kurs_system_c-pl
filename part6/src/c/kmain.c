@@ -1,7 +1,7 @@
 
 #include "cpuid/cpuid.h"
 #include "int.h"
-#include "keyboard.h"
+#include "keyboard/keyboard.h"
 #include "stdlib.h"
 #include "vga/vga.h"
 
