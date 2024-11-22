@@ -3,10 +3,7 @@
 ## Co potrzebne:
 1. nasm
 2. x86_64-elf-gcc
-
-## Part 1 - minimalny kernel w samym ASM z manualnym wypisaniem na ekran.
-## Part 2 - stack i przejście w long mode
-## Part 3 - paging
-## Part 4 - C
-## Part 5 - vga
-## Part 6 - przykładowy STDLIB
+3. qemu-system-x86_64
+4. xorriso
+5. grub2/grub-mkrescue
+6. gcc

@@ -1,5 +1,5 @@
-#include "int.h"
-#include "stdlib.h"
+#include "../int.h"
+#include "../stdlib.h"
 const char OTHER = 255;
 
 const char keys[128] = {
