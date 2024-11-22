@@ -21,13 +21,20 @@ void kmain() {
     kputs(buff);
 
     kputnl();
+    
+    char num_buff[32] = {0};
+    meminit(0, (u8*)num_buff, 32);
 
-    char num_buff[10] = {0};
-
+    for (u8 i = 0; i < 16; i++) {
+        meminit(0, (u8*)num_buff, 32);
+        itoa(i, num_buff, 16);
+        kputs(num_buff);
+        kputc(' ');
+    }
+    kputnl();
     for (u8 i = 0; i < 10; i++) {
-        for (u8 i = 0; i < 10; i++) num_buff[i] = 0;
-
-        itoa((i64)(prand(i) % 10000000), num_buff, 10);
+        meminit(0, (u8*)num_buff, 32);
+        itoa(((i64)prand(i) % 10000000000) - 5000000000, num_buff, 16);
         kputs(num_buff);
         kputnl();
     }
