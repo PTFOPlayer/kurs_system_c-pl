@@ -1,9 +1,9 @@
-arch ?= x86_64
 kernel := build/kernel.bin
 iso := build/os.iso
 
 linker_script := src/linker.ld
 grub_cfg := src/grub.cfg
+
 assembly_source_files := $(wildcard src/*.asm)
 assembly_object_files := $(patsubst src/%.asm, \
 	build/%.o, $(assembly_source_files))
