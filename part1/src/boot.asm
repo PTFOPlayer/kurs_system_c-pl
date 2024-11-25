@@ -25,7 +25,6 @@ start:
     call cpuid_check
     call long_mode_check
     
-    
     call set_up_paging
     call enable_paging
 

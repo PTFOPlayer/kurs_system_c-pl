@@ -1,0 +1,1 @@
+# Inicjacja stosu
