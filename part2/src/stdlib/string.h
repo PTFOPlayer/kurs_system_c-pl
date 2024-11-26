@@ -1,3 +1,4 @@
+#pragma once
 #include "stdint.h"
 
 u64 strlen(char *str) {
