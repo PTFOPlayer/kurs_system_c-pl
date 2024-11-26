@@ -1,17 +1,19 @@
+#include "vga/colors.h"
+#include "vga/vga.h"
 void kmain() {
-    char *buff = (char *)0xb8000;
-    char *hello = "hello from c";
-    while (*hello != '\0') {
-        *buff = *hello;
-        buff++;
-        *buff = 0x0f;
-        buff++;
-        hello++;
+    init_writer(LightGray, Black);
+    puts("hello from c");
+    putnl();
+    puts("its basic os");
+    for (int i = 0; i < 23; i++)
+    {
+        putnl();
     }
-
-    while (1)
-    {}
+    puts("buffer should shift");
+    putnl();
+    puts("if you see this buffer shifted");
+    
+    while (1) {}
 
     asm("hlt");
-    
 }
