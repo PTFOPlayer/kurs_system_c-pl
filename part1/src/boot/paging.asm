@@ -1,6 +1,5 @@
 bits    32
 
-
 set_up_paging:
     mov eax, p3_table
     or eax, 0b11 
