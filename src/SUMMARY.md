@@ -9,4 +9,4 @@
   - [Podstawy trybu 32 bit i stos](./part1/32bit.md)
   - [Testy bootowania](./part1/boot_tests.md)
   - [Stronicowanie pamięci](./part1/paging.md)
-  - [GDT](./part1/GDT.md)
+  - [GDT i tryb 64 bit](./part1/GDT.md)
