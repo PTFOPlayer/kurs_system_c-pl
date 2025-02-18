@@ -10,3 +10,4 @@
   - [Testy bootowania](./part1/boot_tests.md)
   - [Stronicowanie pamięci](./part1/paging.md)
   - [GDT i tryb 64 bit](./part1/GDT.md)
+- [Rozdział 2](./part2/main.md)
