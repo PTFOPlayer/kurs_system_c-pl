@@ -3,14 +3,6 @@
 #include "../stdlib/string.h"
 #include "colors.h"
 
-void init_writer(byte foreground_color, byte background_color);
-void set_color(byte foreground_color, byte background_color);
-void clear();
-void clear_line();
-void shift_buffer();
-void putnl();
-void putc(char);
-void puts(char*);
 
 const u32 BUFFER_HEIGTH = 25;
 const u32 BUFFER_WIDTH = 80;
@@ -27,15 +19,27 @@ typedef struct Writer {
     byte current_color;
 } Writer;
 
+Writer *init_writer(byte foreground_color, byte background_color);
+void set_color(byte foreground_color, byte background_color);
+void clear();
+void clear_line();
+void shift_buffer();
+void putnl();
+void putc(char);
+void puts(char*);
+
+
 static Writer writer = {.buffer = (VGAChar*)(0xb8000),
                         .position = 0,
                         .current_color = LightGray | (Black << 4)};
 
-void init_writer(byte foreground_color, byte background_color) {
+Writer* init_writer(byte foreground_color, byte background_color) {
     writer.buffer = (VGAChar*)(0xb8000);
     memset(0, writer.buffer, sizeof(VGAChar) * BUFFER_SIZE);
     writer.position = 0;
     writer.current_color = foreground_color | (background_color << 4);
+
+    return &writer;
 }
 
 void set_color(byte foreground_color, byte background_color) {
