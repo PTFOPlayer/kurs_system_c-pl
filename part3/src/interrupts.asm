@@ -106,17 +106,14 @@ isr_stub_table:
 %macro irq 1
 irq_%1:
     cli
-    push rbp
-    mov rbp, rsp
     pushfq
     pushaq
     mov rdi, %1
     call irq_handler
     popaq
     popfq
-    pop rbp
     sti
-    ret
+    iretq
 %endmacro
 
 extern irq_handler

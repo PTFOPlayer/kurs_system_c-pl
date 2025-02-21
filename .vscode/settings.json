@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "cpuid.h": "c"
+        "cpuid.h": "c",
+        "colors.h": "c",
+        "serial.h": "c"
     }
 }
