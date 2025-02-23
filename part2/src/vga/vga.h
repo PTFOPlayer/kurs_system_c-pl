@@ -78,7 +78,12 @@ void putc(char ascii) {
         case '\n':
             putnl();
             break;
-
+        case '\t':
+            putc(' ');
+            putc(' ');
+            putc(' ');
+            putc(' ');
+            break;
         default:
             VGAChar chr = {
                 .ascii = ascii,
