@@ -2,6 +2,7 @@
     "files.associations": {
         "cpuid.h": "c",
         "colors.h": "c",
-        "serial.h": "c"
+        "serial.h": "c",
+        "multiboot.h": "c"
     }
 }
