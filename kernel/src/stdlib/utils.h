@@ -10,6 +10,11 @@
     }
 
 void itoa(i64 ivalue, char *dest, i64 base) {
+    if(ivalue == 0) {
+        *dest = '0';
+        return;
+    }
+    
     u32 idx = 0;
 
     u8 neg = 0;

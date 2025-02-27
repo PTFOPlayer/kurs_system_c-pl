@@ -1,9 +1,8 @@
 #pragma once
 #include "../stdlib/stdint.h"
 #include "../stdlib/string.h"
+#include "../stdlib/varargs.h"
 #include "colors.h"
-
-
 const u32 BUFFER_HEIGTH = 25;
 const u32 BUFFER_WIDTH = 80;
 const u32 BUFFER_SIZE = BUFFER_HEIGTH * BUFFER_WIDTH;
@@ -19,7 +18,7 @@ typedef struct Writer {
     byte current_color;
 } Writer;
 
-Writer *init_writer(byte foreground_color, byte background_color);
+Writer* init_writer(byte foreground_color, byte background_color);
 void set_color(byte foreground_color, byte background_color);
 void clear();
 void clear_line();
@@ -27,7 +26,6 @@ void shift_buffer();
 void putnl();
 void putc(char);
 void puts(char*);
-
 
 static Writer writer = {.buffer = (VGAChar*)(0xb8000),
                         .position = 0,
@@ -108,5 +106,55 @@ void puts(char* ascii) {
     while (*ascii != '\0') {
         putc(*ascii);
         ascii++;
+    }
+}
+
+void printf(char* format, ...) {
+    va_list l;
+    va_start(l, 0);
+
+    i32 i = 0;
+    for (; *format != 0; format++) {
+        i++;
+        if ((*format) == '%') {
+            i++;
+            char buff[64] = {0};
+            format++;
+            switch (*format) {
+                case 'c':
+                    char c = va_arg(l, i32);
+                    putc(c);
+                    break;
+
+                case 'd':
+                    i64 d = va_arg(l, i64);
+                    itoa(d, buff, 10);
+                    puts(buff);
+                    break;
+
+                case 'x':
+                    i64 x = va_arg(l, i64);
+                    itoa(x, buff, 16);
+                    puts(buff);
+                    break;
+
+                case 'b':
+                    i64 b = va_arg(l, i64);
+                    ;
+                    itoa(b, buff, 2);
+                    puts(buff);
+                    break;
+
+                case 's':
+                    char* s = va_arg(l, char*);
+                    puts(s);
+                    break;
+
+                default:
+                    break;
+            }
+        } else {
+            putc(*format);
+        }
     }
 }

@@ -55,6 +55,6 @@ void init_keyboard() {
     capslock = 0;
     irq_install(1, keyboard);
     set_color(White, Green);
-    puts("PS/2 Keyboard Initialized\n");
+    printf("PS/2 Keyboard Initialized\n");
     set_color(LightGray, Black);
 }

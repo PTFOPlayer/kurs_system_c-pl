@@ -64,44 +64,31 @@ struct ExceptionFrame {
 
 const u8 dbg_registers_cond = 1;
 
-void dbg_register(char* reg, u64 var, char* buff) {
-    for (i32 i = 0; i < 16; i++) buff[i] = '0';
-    puts(reg);
-    puts(": ");
-    itoa(var, buff, 16);
-    puts(buff);
-}
 
-void dbg_register_pair(char* reg1, char* reg2, u64 var1, u64 var2, char* buff) {
-    dbg_register(reg1, var1, buff);
-    puts("h    ");
-    dbg_register(reg2, var2, buff);
-    puts("h\n");
+void dbg_register_pair(char* reg1, char* reg2, u64 var1, u64 var2) {
+    printf("%s: 0x%x\t\t%s: 0x%x\n", reg1, var1, reg2, var2);
 }
 
 void exception_handler(struct ExceptionFrame* frame) {
     set_color(Red, Yellow);
     char* msg = "unknown";
-    putc('\n');
     if (frame->error_code < 32) {
         msg = int_messages[frame->error_code];
     }
-    puts("Interrupt occured\n");
-    puts(msg);
-    putc('\n');
+
+    printf("\n\nInterrupt occured\n%s\n", msg);
 
     if (dbg_registers_cond) {
         char register_str[16] = "";
-        dbg_register("flags", frame->flags, register_str);
-        putc('\n');
-        dbg_register_pair("rax", "rbx", frame->rax, frame->rbx, register_str);
-        dbg_register_pair("rcx", "rdx", frame->rcx, frame->rdx, register_str);
-        dbg_register_pair("rbp", "rsp", frame->rbp, frame->rsp, register_str);
-        dbg_register_pair("rsi", "rdi", frame->rsi, frame->rdi, register_str);
-        dbg_register_pair("r8 ", "r9 ", frame->r8, frame->r9, register_str);
-        dbg_register_pair("r10", "r11", frame->r10, frame->r11, register_str);
-        dbg_register_pair("r12", "r13", frame->r12, frame->r13, register_str);
-        dbg_register_pair("r14", "r15", frame->r14, frame->r15, register_str);
+        printf("flags: 0x%x\n", frame->flags);
+        dbg_register_pair("rax", "rbx", frame->rax, frame->rbx);
+        dbg_register_pair("rcx", "rdx", frame->rcx, frame->rdx);
+        dbg_register_pair("rbp", "rsp", frame->rbp, frame->rsp);
+        dbg_register_pair("rsi", "rdi", frame->rsi, frame->rdi);
+        dbg_register_pair("r8 ", "r9 ", frame->r8, frame->r9);
+        dbg_register_pair("r10", "r11", frame->r10, frame->r11);
+        dbg_register_pair("r12", "r13", frame->r12, frame->r13);
+        dbg_register_pair("r14", "r15", frame->r14, frame->r15);
     }
 
     asm volatile("cli");
@@ -185,7 +172,7 @@ void idt_init() {
     __asm__ volatile("lidt %0" : : "m"(idtr));  // load the new IDT
     __asm__ volatile("sti");                    // set the interrupt flag
     set_color(White, Green);
-    puts("IDT Initialized\n");
+    printf("IDT Initialized\n");
     set_color(LightGray, Black);
 }
 

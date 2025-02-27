@@ -23,10 +23,10 @@ clean:
 	@rm -r build
 
 run: $(iso)
-	@qemu-system-x86_64 -m 1G -cdrom $(iso)
+	@qemu-system-x86_64 -m 128M -cdrom $(iso) -serial stdio
 
 run_debug: $(iso)
-	@qemu-system-x86_64 -m 1G -no-shutdown -no-reboot -d cpu_reset -cdrom $(iso)
+	@qemu-system-x86_64 -m 128M -no-shutdown -no-reboot -d cpu_reset -cdrom $(iso) -serial stdio
 
 iso: $(iso)
 

@@ -68,11 +68,7 @@ i8 init_serial(COMPort port, void(*handler)()) {
 
 
     set_color(White, Green);
-    char id[5] = "0000"; 
-    itoa((i64)port, id, 16);
-    puts("Serial ");
-    puts(id);
-    puts(" Initialized\n");
+    printf("Serial 0x%x initialized\n", port);
     set_color(LightGray, Black);
 
     return 0;
