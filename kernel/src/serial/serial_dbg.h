@@ -10,24 +10,22 @@ extern void populate_serial_dbg_frame(struct DBGFrame*);
 void serial_dbg_register(char* reg, u64 var, char* buff, COMPort port) {
     for (i32 i = 0; i < 16; i++) buff[i] = '0';
     itoa(var, buff, 16);
-    
-    while (*reg != 0)
-    {
+
+    while (*reg != 0) {
         write_serial(port, *reg);
         reg += 1;
     }
     write_serial(port, ':');
-    
-    for (i32 i = 0; i < 16; i++)
-        write_serial(port, buff[i]);   
+
+    for (i32 i = 0; i < 16; i++) write_serial(port, buff[i]);
 }
 
-void serial_dbg_register_pair(char* reg1, char* reg2, u64 var1, u64 var2, char* buff, COMPort port) {
-    dbg_register(reg1, var1, buff);
-    for (i32 i = 0; i < 4; i++)
-    write_serial(port, ' ');
+void serial_dbg_register_pair(char* reg1, char* reg2, u64 var1, u64 var2,
+                              char* buff, COMPort port) {
+    serial_dbg_register(reg1, var1, buff, port);
+    for (i32 i = 0; i < 4; i++) write_serial(port, ' ');
 
-    dbg_register(reg2, var2, buff);
+    serial_dbg_register(reg2, var2, buff, port);
     write_serial(port, '\n');
 }
 

@@ -3,93 +3,72 @@
 #include "../vga/vga.h"
 #include "multiboot.h"
 
-typedef struct mmap_entry {
-    multiboot_uint32_t size;
-    multiboot_uint32_t addr_low;
-    multiboot_uint32_t addr_high;
-    multiboot_uint32_t len_low;
-    multiboot_uint32_t len_high;
-#define MULTIBOOT_MEMORY_AVAILABLE 1
-#define MULTIBOOT_MEMORY_RESERVED 2
-#define MULTIBOOT_MEMORY_ACPI_RECLAIMABLE 3
-#define MULTIBOOT_MEMORY_NVS 4
-#define MULTIBOOT_MEMORY_BADRAM 5
-    multiboot_uint32_t type;
-} __attribute__((packed)) mmap_entry;
+char *segment_tags[] = {
+    "End tag",
+    "boot command line",
+    "boot loader name",
+    "modules",
+    "basic memory information",
+    "BIOS boot device",
+    "memory map",
+    "VBE info",
+    "framebuffer info",
+    "ELF-symbols",
+    "APM table",
+    "EFI 32-bit system table pointer",
+    "EFI 64-bit system table pointer",
+    "SMBIOS tables",
+    "ACPI old RSDP",
+    "ACPI new RSDP",
+    "networking information",
+    "EFI memory map",
+    "EFI boot services not terminated",
+    "EFI 32-bit image handle pointer",
+    "EFI 64-bit image handle pointer",
+    "image load base physical address",
+};
 
-void init_memory(void *mbd, u8 debug) {
-    char buff[32] = {0};
-    memset(0, buff, 32);
-    puts("Multiboot size:");
+void print_mmap(struct multiboot_tag_mmap *tag) {
+    puts("\n\nMMAP\n");
+
+    multiboot_memory_map_t *mmap;
+    char buffer[32] = {0};
+    for (mmap = tag->entries; (u8 *)mmap < (u8 *)tag + tag->size;
+         mmap = (multiboot_memory_map_t *)((u64)mmap + tag->entry_size)) {
+        printf("\t\tStart: 0x%x Len: %x\n", mmap->addr, mmap->len);
+    }
+};
+
+typedef struct MultibootData {
+    struct multiboot_tag_mmap *mmap_tag;
+} MultibootData;
+
+MultibootData parse_multiboot(void *mbd, u8 debug) {
     u32 info_size = *(u32 *)mbd;
-    itoa(info_size, buff, 10);
-    puts(buff);
-    puts("\n");
+    printf("Multiboot size: %d\n", info_size);
 
     if ((u64)mbd & 7) {
+        set_color(Black, Red);
         puts("Unalighned mbd, panic");
         while (1) {
         }
     }
-    
-    u32 segment_size = 0;
+
+    MultibootData data;
+
+    struct multiboot_tag *tag;
     for (u32 i = 8; i < info_size;) {
-        u32 type = *(u32 *)(mbd + i);
-        u32 size = *(u32 *)(mbd + i + 4);
+        tag = (struct multiboot_tag *)(mbd + i);
+        u32 type = tag->type;
+        u32 size = tag->size;
 
-        puts("\tSegment type: ");
-        memset(0, buff, 32);
-        itoa(type, buff, 10);
-        puts(buff);
+        printf("\t%s | size: %d\n", segment_tags[type], size);
 
-        puts(" | Segment size: ");
-        memset(0, buff, 32);
-        itoa(size, buff, 10);
-        puts(buff);
-        puts("\n");
         i += (size + 7) & ~7;
+
+        if (type == MULTIBOOT_TAG_TYPE_MMAP) {
+            data.mmap_tag = (struct multiboot_tag_mmap *)tag;
+        }
     }
-
-    // if(!(mbd->flags >> 6 & 0x1)) {
-    //     puts("invalid memory map given by GRUB bootloader\n Hanging kernel");
-    //     while (1){}
-    // }
-
-    // char buff[32] = {0};
-    // memset(0, buff, 32);
-
-    // if(debug) {
-    //     puts("Multiboot info addr: 0x");
-    //     itoa((i64)mbd, buff, 16);
-    //     puts(buff);
-    //     putc('\n');
-
-    //     puts("\tMultiboot mmap addr: 0x");
-    //     memset(0, buff, 32);
-    //     itoa((i64)mbd->mmap_addr, buff, 16);
-    //     puts(buff);
-    //     putc('\n');
-
-    //     puts("\tMultiboot mmap len: 0x");
-    //     memset(0, buff, 32);
-    //     itoa((i64)mbd->mmap_length, buff, 16);
-    //     puts(buff);
-    //     putc('\n');
-    // }
-
-    // for (
-    //     i32 i = 0;
-    //     i <  mbd->mmap_length;
-    //     i += sizeof(multiboot_memory_map_t))
-    // {
-
-    //     multiboot_memory_map_t *entry =
-    //     (multiboot_memory_map_t*)mbd->mmap_addr + i;
-    //     // u64 entry_addr = (u64)(entry->addr_low) | ((u64)entry->addr_high
-    //     << 32); i64 entry_addr = entry->addr; puts("\t\tEntry addr: 0x");
-    //     memset(0, buff, 32);
-    //     itoa(entry_addr, buff, 16);
-    //     puts(buff);
-    //     putc('\n');
-    // }
+    return data;
 }

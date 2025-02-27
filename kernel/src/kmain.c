@@ -8,6 +8,7 @@
 
 // plik multiboot z strony OSDEV
 #include "./multiboot/multiboot.h"
+
 #include "./multiboot/multiboot_parse.h"
 
 static u32 pit_tick = 0;
@@ -25,12 +26,13 @@ void kmain(void *multiboot_info) {
     idt_init();
     init_keyboard();
     
-    init_memory(multiboot_info, 1);
+    MultibootData data = parse_multiboot(multiboot_info, 1);
+    print_mmap(data.mmap_tag);
+    init_serial(COM1, 0);
+    serial_dbg(COM1);
+
     
-
-    // init_serial(COM1, 0);
-    // serial_dbg(COM1);
-
+    printf("%d\n%d\n%d", 10, 20, 30);
     set_pit_handler(pit_handle);
     init_pit(100);
 
