@@ -15,7 +15,7 @@ static u32 pit_tick = 0;
 void pit_handle() {
     pit_tick += 1;
     if(pit_tick == 100) {
-        // puts("pit fired");
+        // printf("pit fired");
         pit_tick = 0;
     }
 }
@@ -31,8 +31,6 @@ void kmain(void *multiboot_info) {
     init_serial(COM1, 0);
     serial_dbg(COM1);
 
-    
-    printf("%d\n%d\n%d", 10, 20, 30);
     set_pit_handler(pit_handle);
     init_pit(100);
 
