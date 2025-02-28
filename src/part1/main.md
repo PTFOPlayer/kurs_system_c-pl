@@ -14,3 +14,8 @@ Ostatnim etapem będzie wjeście w tryb 64 bitowy Long mode. Do tego potrzebujem
 
 ## Tabela pojęć
 
+* BIOS -> basic input output system - system znajdujący się w ROM płyty odpowiedzialny za rozruch procesora
+* CPUID - zestaw instrukcji dających informacje o stanie procesora oraz pozwalających określić do jakich rozszerzeń architektury x86 mamy dostęp
+* LongMode - tryb 64 bitowy x86_64 
+* GDT -> Global descriptors table - sektor pamięci który opisuje segmenty pamięci
+* TSS -> Task state segment - służy procesorowi na tymczasowe przechowanie rejestrów statusowych i `rsp`

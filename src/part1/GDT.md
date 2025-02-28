@@ -119,6 +119,7 @@ Linijka `dw $ - gdt - 1` powoduje nam wyliczenie długości GDT na etapie kompil
 
 ## Ładowanie GDT
 
+> plik src/boot.asm
 ```x86asm
 <załączenie stronicowania>
 ...
