@@ -18,3 +18,5 @@ typedef signed long int i64;
 typedef u64 quad_word;
 
 typedef u64 ptr_64;
+
+#define nullptr 0
