@@ -1,7 +1,7 @@
 ENTRY(start)
 
 SECTIONS {
-    . = 2M;
+    . = 1M;
     .text :
     {
         KEEP(*(.multiboot_header))
