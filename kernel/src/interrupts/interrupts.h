@@ -109,7 +109,7 @@ void idt_set_descriptor(u8 vector, void* isr, u8 flags) {
 }
 
 #define IDT_MAX_DESCRIPTORS 255
-static u8 vectors[IDT_MAX_DESCRIPTORS];  // bool
+static bool vectors[IDT_MAX_DESCRIPTORS];
 
 extern void* isr_stub_table[];
 extern void* irq_stub_table[];

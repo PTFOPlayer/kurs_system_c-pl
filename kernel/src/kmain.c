@@ -5,11 +5,13 @@
 #include "serial/serial.h"
 #include "serial/serial_dbg.h"
 #include "timers/pit.h"
-#include "memory/frame_allocator.h"
+#include "memory/frame_allocator/frame_allocator.h"
 // plik multiboot z strony OSDEV
 #include "./multiboot/multiboot.h"
-
+#include "./stdlib/assert.h"
 #include "./multiboot/multiboot_parse.h"
+#include "memory/paging/flags.h"
+#include "memory/paging/paging.h"
 
 static u32 pit_tick = 0;
 void pit_handle() {
@@ -39,8 +41,7 @@ void kmain(void *multiboot_info) {
     for (i32 i = 0; i < 256; i++)
     {
         Frame f;
-        AllocatorResult res = allocate_frame(&allocator, &f);
-        if (res != Success)
+        if (!allocate_frame(&allocator, &f))
         {
             printf("Alocation error");
             break;
@@ -52,8 +53,13 @@ void kmain(void *multiboot_info) {
             printf("\n");
         }
     }
-    
-        
+
+    PageTable *page_4 = p4;
+    PageTable *page_3 = nullptr;
+    // "soft" allocation of page
+    set_entry(&page_4->entries[42], containing_address(0xdeadbeef),PAGE_PRESENT);
+    assert(next_table(page_4, 42, page_3));
+    printf("\n\nSucces\n\n");
     while (1) {
     }
 }

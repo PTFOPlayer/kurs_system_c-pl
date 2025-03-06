@@ -20,3 +20,6 @@ typedef u64 quad_word;
 typedef u64 ptr_64;
 
 #define nullptr 0
+#define bool i8
+#define true 1
+#define false 0
