@@ -1,17 +1,9 @@
 #pragma once
-#include "../multiboot/multiboot.h"
-#include "../multiboot/multiboot_parse.h"
-#include "../stdlib/stdint.h"
+#include "../../multiboot/multiboot.h"
+#include "../../multiboot/multiboot_parse.h"
+#include "../../stdlib/stdint.h"
+#include "frame.h"
 #define PAGE_SIZE 0x1000  // 4096
-
-typedef struct Frame {
-    u64 number;
-} Frame;
-
-Frame containing_address(u64 address) {
-    Frame frame = {address / PAGE_SIZE};
-    return frame;
-}
 
 
 typedef struct AreaFrameAllocator {
@@ -28,7 +20,6 @@ typedef struct AreaFrameAllocator {
     } boundries;
 
 } AreaFrameAllocator;
-
 
 void choose_next_area(AreaFrameAllocator *allocator) {
     multiboot_memory_map_t *next_area = nullptr;
@@ -72,14 +63,9 @@ AreaFrameAllocator new_allocator(MultibootData *multiboot) {
     return allocator;
 }
 
-typedef enum AllocatorResult {
-    Success = 0,
-    Error = 1,
-} AllocatorResult;
-
-AllocatorResult allocate_frame(AreaFrameAllocator *allocator, Frame *dst) {
+bool allocate_frame(AreaFrameAllocator *allocator, Frame *dst) {
     if (allocator->current_area == nullptr) {
-        return Error;
+        return false;
     }
     Frame frame = allocator->next_free_frame;
 
@@ -97,7 +83,7 @@ AllocatorResult allocate_frame(AreaFrameAllocator *allocator, Frame *dst) {
     } else {
         allocator->next_free_frame.number += 1;
         *dst = frame;
-        return Success;
+        return true;
     }
 
     allocate_frame(allocator, dst);

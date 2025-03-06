@@ -2,6 +2,12 @@ bits    32
 
 
 set_up_paging:
+    
+    ; recursive paging, not used in first example
+    mov eax, p4_table
+    or eax, 0b11
+    mov [p4_table + 511 * 8], eax
+
     mov eax, p3_table
     or eax, 0b11 
     mov [p4_table], eax
