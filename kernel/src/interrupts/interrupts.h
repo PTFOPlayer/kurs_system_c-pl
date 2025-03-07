@@ -79,7 +79,6 @@ void exception_handler(struct ExceptionFrame* frame) {
     printf("\n\nInterrupt occured\n%s\n", msg);
 
     if (dbg_registers_cond) {
-        char register_str[16] = "";
         printf("flags: 0x%x\n", frame->flags);
         dbg_register_pair("rax", "rbx", frame->rax, frame->rbx);
         dbg_register_pair("rcx", "rdx", frame->rcx, frame->rdx);
@@ -92,7 +91,9 @@ void exception_handler(struct ExceptionFrame* frame) {
     }
 
     asm volatile("cli");
-    asm volatile("hlt");
+    while (1)
+        asm volatile("hlt");
+    
     return;
 }
 
