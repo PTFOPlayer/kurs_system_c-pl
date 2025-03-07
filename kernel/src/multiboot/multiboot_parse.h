@@ -70,7 +70,7 @@ typedef struct MultibootData {
     u64 multiboot_information_start;
     u64 multiboot_information_end;
     struct mmap {
-        multiboot_memory_map_t mmap[MAX_MEMORY_AREAS];
+        multiboot_memory_map_t *mmap;
         u32 mmap_size;
     } mmap;
     struct kernel_addr {
@@ -109,12 +109,14 @@ MultibootData parse_multiboot(void *mbd, u8 debug) {
             case MULTIBOOT_TAG_TYPE_MMAP:
                 struct multiboot_tag_mmap *mmap_tag =
                     (struct multiboot_tag_mmap *)tag;
+
+                u64 entry_size = mmap_tag->entry_size;
                 multiboot_memory_map_t *mmap;
+                data.mmap.mmap = mmap;
+
                 for (mmap = mmap_tag->entries;
                      (u8 *)mmap < (u8 *)mmap_tag + mmap_tag->size;
-                     mmap = (multiboot_memory_map_t *)((u64)mmap +
-                                                       mmap_tag->entry_size)) {
-                    data.mmap.mmap[data.mmap.mmap_size] = *mmap;
+                     mmap = (multiboot_memory_map_t *)(mmap + entry_size)) {
                     data.mmap.mmap_size++;
                 }
 

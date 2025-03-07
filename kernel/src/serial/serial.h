@@ -16,16 +16,16 @@ typedef enum COMPort {
 
 u8 com_received(COMPort port) { return in_port(COM1 + 5) & 1; }
 
-u8 transmit_empty(COMPort port) {
-    return in_port(port + 5) & 0x20;
-}
+u8 transmit_empty(COMPort port) { return in_port(port + 5) & 0x20; }
 
 void write_serial(COMPort port, char a) {
     while (transmit_empty(port) == 0);
-    out_port(port,a);
+    out_port(port, a);
 }
 
-i8 init_serial(COMPort port, void(*handler)()) {
+void com_no_handler() {};
+
+i8 init_serial(COMPort port, void (*handler)()) {
     // irq off
     out_port(port + 1, 0x00);  // Disable all interrupts
 
@@ -50,26 +50,27 @@ i8 init_serial(COMPort port, void(*handler)()) {
     out_port(port + 0, 0xAE);
 
     if (in_port(port + 0) != 0xAE) {
-        puts("faulty serial port");        
+        puts("faulty serial port");
         return -1;
     }
 
     out_port(port + 4, 0x0F);
 
-    if (handler != 0 ) {
-        if (port == COM1) {
-            irq_install(4, handler);
-        }
-        
-        if (port == COM2) {
-            irq_install(3, handler);
-        }
+    if (port == COM1 && handler != 0) {
+        irq_install(4, handler);
+    } else {
+        irq_install(4, com_no_handler);
     }
 
+    if (port == COM2) {
+        irq_install(3, handler);
+    } else {
+        irq_install(3, com_no_handler);
+    }
 
     set_color(White, Green);
     printf("Serial 0x%x initialized\n", port);
     set_color(LightGray, Black);
-
+    asm volatile("sti");
     return 0;
 }
