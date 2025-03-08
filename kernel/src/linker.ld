@@ -1,26 +1,50 @@
-ENTRY(start)
+OUTPUT_FORMAT(elf64-x86-64)
 
-SECTIONS {
-    . = 1M;
-    .text :
-    {
-        KEEP(*(.multiboot_header))
+ENTRY(kmain)
+
+PHDRS
+{
+    limine_requests PT_LOAD;
+    text PT_LOAD;
+    rodata PT_LOAD;
+    data PT_LOAD;
+}
+
+SECTIONS
+{
+    . = 0xffffffff80000000;
+
+    .limine_requests : {
+        KEEP(*(.limine_requests_start))
+        KEEP(*(.limine_requests))
+        KEEP(*(.limine_requests_end))
+    } :limine_requests
+
+    . = ALIGN(CONSTANT(MAXPAGESIZE));
+
+    .text : {
         *(.text .text.*)
-    }
-    .rodata BLOCK(4K):ALIGN(4K)
-    {
+    } :text
+
+    . = ALIGN(CONSTANT(MAXPAGESIZE));
+
+    .rodata : {
         *(.rodata .rodata.*)
-    }
-    .data BLOCK(4K):ALIGN(4K)
-    {
+    } :rodata
+
+    . = ALIGN(CONSTANT(MAXPAGESIZE));
+
+    .data : {
         *(.data .data.*)
-    }
-    .bss BLOCK(4K):ALIGN(4K)
-    {
+    } :data
+
+    .bss : {
         *(.bss .bss.*)
-    }
-    .data.rel.ro : 
-    {
-        *(.data.rel.ro.local*) *(.data.rel.ro .data.rel.ro.*)
+        *(COMMON)
+    } :data
+
+    /DISCARD/ : {
+        *(.eh_frame*)
+        *(.note .note.*)
     }
 }
