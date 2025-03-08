@@ -3,7 +3,7 @@
 #include "../stdlib/stdint.h"
 #include "../interrupts/interrupts.h"
 
-void set_pit_handler(void(*handler)()) {
+void set_pit_handler(void(*handler)(IRQFrame)) {
     irq_install(0, handler);
 }
 

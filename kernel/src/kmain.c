@@ -13,7 +13,7 @@
 #include "memory/paging/paging.h"
 
 static u32 pit_tick = 0;
-void pit_handle() {
+void pit_handle(IRQFrame frame) {
     pit_tick += 1;
     if (pit_tick == 100) {
         // printf("pit fired");
@@ -36,7 +36,7 @@ void kmain(void *multiboot_info) {
 
     PageTable *p4 = P4_GLOBAL;
     printf("\n\n");
-    u64 addr = 42 * 512 * 512 * 4096;
+    u64 addr = 42 * 512 * 512 * 4096ull;
     u64 physical;
     Page p = page_containing_address(addr);
     printf("Addr: %x | Page: %x\n", addr, p);
@@ -44,11 +44,10 @@ void kmain(void *multiboot_info) {
     assert(allocate_frame(&allocator, &f));
     printf("Addr: %x | Page: %x | Frame: %x\n", addr, p, f);
     map_to(p, f, 0, &allocator);
-    printf("If u see this page has been properly mapped\n");
     assert(translate_address(addr, &physical));
     printf("Addr: %x | Page: %x | Frame: %x | Phys: %x\n", addr, p, f,
            physical);
-    
+
     while (1) {
     }
 }
