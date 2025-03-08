@@ -1,6 +1,6 @@
 # Kurs pisania systemu operacyjnego w ASM i C
 
-⚠️ Edycja 1 jest w oddzielnym branchu, branch main jest w trakcie przerabiania na edycję 2 ⚠️
+⚠️ Edycja 1 i Edycja 2 jest w oddzielnym branchu, branch main jest w trakcie przerabiania na edycję 3 ⚠️
 
 ## Co potrzebne:
 1. nasm

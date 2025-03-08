@@ -1,53 +1,50 @@
-#include "interrupts/interrupts.h"
-#include "keyboard/keyboard.h"
-#include "memory/frame_allocator/frame_allocator.h"
-#include "serial/serial.h"
-#include "timers/pit.h"
-#include "vga/colors.h"
-#include "vga/vga.h"
-// plik multiboot z strony OSDEV
-#include "./multiboot/multiboot.h"
-#include "./multiboot/multiboot_parse.h"
-#include "./stdlib/assert.h"
-#include "memory/paging/flags.h"
-#include "memory/paging/paging.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
-static u32 pit_tick = 0;
-void pit_handle(IRQFrame frame) {
-    pit_tick += 1;
-    if (pit_tick == 100) {
-        // printf("pit fired");
-        pit_tick = 0;
+#include "limine.h"
+
+__attribute__((used,
+               section(".limine_requests_"
+                       "start"))) static volatile LIMINE_REQUESTS_START_MARKER;
+
+__attribute__((
+    used, section(".limine_requests"))) static volatile LIMINE_BASE_REVISION(3);
+
+__attribute__((
+    used,
+    section(
+        ".limine_requests"))) static volatile struct limine_framebuffer_request
+    framebuffer_request = {.id = LIMINE_FRAMEBUFFER_REQUEST, .revision = 0};
+
+__attribute__((
+    used,
+    section(
+        ".limine_requests_end"))) static volatile LIMINE_REQUESTS_END_MARKER;
+
+static void halt(void) {
+    for (;;) {
+        asm("hlt");
     }
 }
 
-void kmain(void *multiboot_info) {
-    init_writer(LightGray, Black);
-    idt_init();
-    init_serial(COM1, 0);
-    init_keyboard();
-
-    init_pit(100);
-    set_pit_handler(pit_handle);
-
-    MultibootData data = parse_multiboot(multiboot_info, 1);
-
-    AreaFrameAllocator allocator = new_allocator(&data);
-
-    PageTable *p4 = P4_GLOBAL;
-    printf("\n\n");
-    u64 addr = 42 * 512 * 512 * 4096ull;
-    u64 physical;
-    Page p = page_containing_address(addr);
-    printf("Addr: %x | Page: %x\n", addr, p);
-    Frame f;
-    assert(allocate_frame(&allocator, &f));
-    printf("Addr: %x | Page: %x | Frame: %x\n", addr, p, f);
-    map_to(p, f, 0, &allocator);
-    assert(translate_address(addr, &physical));
-    printf("Addr: %x | Page: %x | Frame: %x | Phys: %x\n", addr, p, f,
-           physical);
-
-    while (1) {
+void kmain(void) {
+    if (LIMINE_BASE_REVISION_SUPPORTED == false) {
+        halt();
     }
+
+    if (framebuffer_request.response == NULL ||
+        framebuffer_request.response->framebuffer_count < 1) {
+        halt();
+    }
+
+    struct limine_framebuffer *framebuffer =
+        framebuffer_request.response->framebuffers[0];
+
+    for (size_t i = 0; i < 500; i++) {
+        volatile uint32_t *fb_ptr = (uint32_t *)framebuffer->address;
+        fb_ptr[i * (framebuffer->pitch / 4) + i] = 0xffffff;
+    }
+
+    halt();
 }
