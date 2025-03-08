@@ -6,7 +6,7 @@
 #include "flags.h"
 #include "page_table.h"
 
-const PageTable *P4_GLOBAL = (PageTable *)0xfffffffffffff000;
+PageTable *P4_GLOBAL = (PageTable *)0xfffffffffffff000;
 
 bool next_table_address(PageTable *page_table, u64 idx, u64 *page_table_addr) {
     EntryFlagsStruct flags = entry_flags(&page_table->entries[idx]);
@@ -112,4 +112,17 @@ void map_to(Page page, Frame frame, u64 flags, AreaFrameAllocator *allocator) {
     create_next_table(p3, p3_index(page), allocator, &p2);
     create_next_table(p2, p2_index(page), allocator, &p1);
     set_entry(&p1->entries[p1_index(page)], frame, flags | PAGE_PRESENT);
+}
+
+void unmap(Page page, AreaFrameAllocator *allocator) {
+    PageTable *p4 = P4_GLOBAL;
+    PageTable *p3;
+    PageTable *p2;
+    PageTable *p1;
+
+    next_table(p4, p4_index(page), &p3);
+    next_table(p3, p3_index(page), &p2);
+    next_table(p2, p2_index(page), &p1);
+    set_unused(&p1->entries[p1_index(page)]);
+    
 }

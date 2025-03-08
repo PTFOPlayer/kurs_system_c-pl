@@ -115,21 +115,30 @@ static bool vectors[IDT_MAX_DESCRIPTORS];
 extern void* isr_stub_table[];
 extern void* irq_stub_table[];
 
-void (*irq_routines[16])(void) = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,};
-void irq_handler(u64 idx) {
-    void (*routine)(void) = irq_routines[idx];
+
+typedef struct IRQFrame {
+    u64 idx;
+    u64 flags;
+    u64 r15, r14, r13, r12, r11, r10, r9, r8, rdi, rsi, rsp, rbp, rdx, rcx, rbx,
+        rax;
+} IRQFrame;
+
+
+void (*irq_routines[16])(IRQFrame frame) = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,};
+void irq_handler(IRQFrame* frame) {
+    void (*routine)(IRQFrame frame) = irq_routines[frame->idx];
     if(routine) {
-        routine();
+        routine(*frame);
     }
     
-    if(idx >= 8) {
+    if(frame->idx >= 8) {
         out_port(0xA0, 0x20);
     }
 
     out_port(0x20, 0x20);
 }
 
-void irq_install(u64 irq, void(*handler)(void)) {
+void irq_install(u64 irq, void(*handler)(IRQFrame frame)) {
     irq_routines[irq] = handler; 
 }
 

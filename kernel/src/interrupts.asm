@@ -41,10 +41,12 @@ isr_stub_%+%1:
     cli
     pushf
     push %1
-    mov rdi, rsp
+    mov rdi, rsp 
     call exception_handler
     pop rdi
+    popf
     popaq
+    sti
     iretq
 %endmacro
 
@@ -57,7 +59,9 @@ isr_stub_%+%1:
     mov rdi, rsp 
     call exception_handler
     pop rdi
+    popf
     popaq
+    sti
     iretq
 %endmacro
 
@@ -106,12 +110,14 @@ isr_stub_table:
 %macro irq 1
 irq_%1:
     cli
-    pushfq
     pushaq
-    mov rdi, %1
+    pushf
+    push %1
+    mov rdi, rsp 
     call irq_handler
+    pop rdi
+    popf
     popaq
-    popfq
     sti
     iretq
 %endmacro
