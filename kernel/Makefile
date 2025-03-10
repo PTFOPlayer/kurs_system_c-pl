@@ -5,23 +5,18 @@ iso := $(build_path)/os.iso
 linker_script := src/linker.ld
 limine_path := ../limine
 
-# grub_cfg := src/grub.cfg
-
-# assembly_source_files := $(wildcard src/*.asm)
-# assembly_object_files := $(patsubst src/%.asm, \
-# 	$(build_path)/%.o, $(assembly_source_files))
-
 c_source_files := $(shell find ./src -name '*.c')
 cpp_source_files := $(shell find ./src -name '*.cpp')
 
 override CFLAGS = -g -O2 -pipe\
 	-Wall \
     -Wextra \
-    -std=gnu11 \
     -ffreestanding \
     -fno-stack-protector \
     -fno-stack-check \
     -fno-PIC \
+    -ffunction-sections \
+    -fdata-sections \
     -m64 \
     -march=x86-64 \
     -mno-80387 \

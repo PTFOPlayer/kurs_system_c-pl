@@ -2,7 +2,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "graphics/graphics.hpp"
 #include "limine.h"
+#include "utils/utils.hpp"
 
 __attribute__((used,
                section(".limine_requests_"
@@ -22,13 +24,13 @@ __attribute__((
     section(
         ".limine_requests_end"))) static volatile LIMINE_REQUESTS_END_MARKER;
 
-static void halt(void) {
+void halt(void) {
     for (;;) {
         asm("hlt");
     }
 }
 
-void kmain(void) {
+extern "C" void kmain(void) {
     if (LIMINE_BASE_REVISION_SUPPORTED == false) {
         halt();
     }
@@ -41,10 +43,15 @@ void kmain(void) {
     struct limine_framebuffer *framebuffer =
         framebuffer_request.response->framebuffers[0];
 
-    for (size_t i = 0; i < 500; i++) {
-        volatile uint32_t *fb_ptr = (uint32_t *)framebuffer->address;
-        fb_ptr[i * (framebuffer->pitch / 4) + i] = 0xffffff;
-    }
+    TextMode text_mode(framebuffer);
+
+    text_mode.printf("This is normal text\n");
+    text_mode.error("This is error text\n");
+    text_mode.warning("This is warning text\n");
+    text_mode.info("This is info text\n");
+
+    text_mode.printf("Resolution: %dx%d\n", framebuffer->width,
+                     framebuffer->height);
 
     halt();
 }
