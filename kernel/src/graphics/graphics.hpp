@@ -55,7 +55,9 @@ class TextMode {
     ~TextMode();
 };
 
+static TextMode *global_writer = nullptr;
 TextMode::TextMode(struct limine_framebuffer *data) {
+    global_writer = this;
     this->max_width = data->width;
     this->max_height = data->height;
     this->addr = (uint32_t *)data->address;

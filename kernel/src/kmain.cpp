@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "graphics/graphics.hpp"
+#include "interrupts/interrupts.hpp"
 #include "limine.h"
 #include "memory/ll_allocator.hpp"
 #include "utils/utils.hpp"
@@ -65,6 +66,7 @@ extern "C" void kmain(void) {
     struct limine_memmap_response* memmap = memmap_request.response;
 
     TextMode text_mode(framebuffer);
+    idt_init();
 
     text_mode.printf("This is normal text\n");
     text_mode.error("This is error text\n");
@@ -109,7 +111,7 @@ extern "C" void kmain(void) {
     ll.free(ll.malloc(128));
     ll.dbg(text_mode);
 
-    void* reuse = ll.malloc(128);
+    void* reuse = ll.malloc(120);
     ll.dbg(text_mode);
 
     ll.free(reuse);

@@ -97,7 +97,7 @@ void LinkedListAllocator::dbg(TextMode& text_mode) {
 
     text_mode.info("Freed nodes:\n");
     LinkedListNode* freed = this->free_list_head;
-    while (freed != nullptr && freed->next != this->free_list_head) {
+    while (freed != nullptr) {
         text_mode.printf("\t Base: %d, Size: %d\n", freed, freed->size);
         freed = freed->next;
     }
