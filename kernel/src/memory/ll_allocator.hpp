@@ -1,58 +1,104 @@
 #pragma once
 #include <stdint.h>
 
+#include "../graphics/graphics.hpp"
+
 struct LinkedListNode {
     LinkedListNode* next;
+    uint32_t size;
 };
 
 class LinkedListAllocator {
    private:
-    uint32_t block_size;
-    uint32_t memory_capacity;
-    uint32_t memory_used = 0;
-    void* base;
+    LinkedListNode* head;
     LinkedListNode* tail;
+    LinkedListNode* free_list_head;
+    LinkedListNode* free_list_tail;
 
    public:
-    LinkedListAllocator(void* base, uint32_t capacity, uint32_t block_size);
-    ~LinkedListAllocator();
+    LinkedListAllocator(void* base);
+    ~LinkedListAllocator() {};
 
-    void* ll_malloc(uint32_t);
-    static void ll_free(void*);
+    void dbg(TextMode& text_mode);
+    void* malloc(uint32_t);
+    void free(void*);
 };
 
-LinkedListAllocator::LinkedListAllocator(void* base, uint32_t capacity,
-                                         uint32_t block_size) {
-    this->block_size = block_size;
-    this->memory_capacity = capacity;
-    this->base = base;
-    this->tail = (LinkedListNode*)base;
-    tail->next = nullptr;
+LinkedListAllocator::LinkedListAllocator(void* base) {
+    this->head = (LinkedListNode*)base;
+    this->tail = this->head;
+    this->tail->next = nullptr;
+    this->tail->size = 0;
+    this->free_list_head = nullptr;
+    this->free_list_tail = nullptr;
 }
 
-LinkedListAllocator::~LinkedListAllocator() {}
+void* LinkedListAllocator::malloc(uint32_t size) {
+    LinkedListNode* new_node =
+        (LinkedListNode*)((uint64_t)this->tail + sizeof(LinkedListNode) +
+                          this->tail->size);
 
-void* LinkedListAllocator::ll_malloc(uint32_t size) {
-    LinkedListNode* alloc = nullptr;
+    LinkedListNode* prev = nullptr;
+    LinkedListNode* current = free_list_head;
 
-    void* addr = (char*)this->tail + sizeof(LinkedListNode);
+    while (current) {
+        if (current->size >= size) {
+            if (prev) {
+                prev->next = current->next;
+            } else {
+                free_list_head = current->next;
+            }
 
-    if (size + memory_used > memory_capacity) {
+            if (current == free_list_tail) {
+                free_list_tail = prev;
+            }
+
+            return (void*)((uint64_t)current + sizeof(LinkedListNode));
+        }
+        prev = current;
+        current = current->next;
+    }
+
+    if ((uintptr_t)new_node < (uintptr_t)this->tail) {
         return nullptr;
     }
 
-    if (tail->next == nullptr) {
-        alloc = (LinkedListNode*)((char*)this->tail + sizeof(LinkedListNode) +
-                                  this->block_size);
-        alloc->next = nullptr;
-        tail->next = alloc;
-    } else {
-        alloc = tail->next;
-    }
-    tail = alloc;
-    return addr;
+    this->tail->next = new_node;
+    this->tail = new_node;
+    this->tail->next = nullptr;
+    this->tail->size = size;
+
+    return (void*)((uint64_t)this->tail + sizeof(LinkedListNode));
 }
 
-void LinkedListAllocator::ll_free(void* addr) {
-    // placeholder
+void LinkedListAllocator::free(void* ptr) {
+    if (!ptr) return;
+
+    LinkedListNode* node =
+        (LinkedListNode*)((uint64_t)ptr - sizeof(LinkedListNode));
+
+    if (free_list_head == nullptr) {
+        free_list_head = node;
+        free_list_tail = node;
+        node->next = nullptr;
+    } else {
+        node->next = free_list_head;
+        free_list_head = node;
+    }
+}
+
+void LinkedListAllocator::dbg(TextMode& text_mode) {
+    text_mode.info("\n\nAllocated nodes:\n");
+    LinkedListNode* head = this->head;
+    while (head != nullptr) {
+        text_mode.printf("\t Base: %d, Size: %d\n", head, head->size);
+        head = head->next;
+    }
+
+    text_mode.info("Freed nodes:\n");
+    LinkedListNode* freed = this->free_list_head;
+    while (freed != nullptr && freed->next != this->free_list_head) {
+        text_mode.printf("\t Base: %d, Size: %d\n", freed, freed->size);
+        freed = freed->next;
+    }
 }

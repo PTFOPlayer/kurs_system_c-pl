@@ -1,10 +1,10 @@
+#pragma GCC diagnostic ignored "-Wwrite-strings"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
 #include "graphics/graphics.hpp"
 #include "limine.h"
-#include "memory/heap.hpp"
 #include "memory/ll_allocator.hpp"
 #include "utils/utils.hpp"
 
@@ -87,25 +87,33 @@ extern "C" void kmain(void) {
         text_mode.printf("\n");
     }
 
-    init_heap((void*)(current_entry->base + hhdm_request.response->offset));
+    LinkedListAllocator ll(
+        (void*)(current_entry->base + hhdm_request.response->offset));
 
-    uint32_t loooong_string_size = 2048;
-    char* loooong_string = (char*)malloc(loooong_string_size);
+    uint32_t loooong_string_size = 1024;
+    char* loooong_string = (char*)ll.malloc(loooong_string_size);
 
-    if (loooong_string == nullptr)
-    {
-        halt();
-    }
-    
-
-    for (size_t i = 0; i < loooong_string_size - 20;) {
-        for (size_t j = 'a'; i < loooong_string_size - 20 && j < 'z'; j++) {
-            loooong_string[i] = (char)j;
-            i++;
+    if (loooong_string == nullptr) {
+        text_mode.printf("error, nullptr");
+    } else {
+        for (size_t i = 0; i < loooong_string_size;) {
+            for (size_t j = 'a'; i < loooong_string_size && j <= 'z'; j++) {
+                loooong_string[i] = (char)j;
+                i++;
+            }
         }
     }
 
     text_mode.printf(loooong_string);
+
+    ll.free(ll.malloc(128));
+    ll.dbg(text_mode);
+
+    void* reuse = ll.malloc(128);
+    ll.dbg(text_mode);
+
+    ll.free(reuse);
+    ll.free(loooong_string);
 
     halt();
 }
