@@ -55,3 +55,13 @@ void *memset(void *s, uint8_t c, size_t n) {
 
     return s;
 }
+
+void out_port(uint16_t port, char b) {
+    asm volatile("out %1, %0" : : "dN"(port), "a"(b));
+}
+
+char in_port(uint16_t port) {
+    char b;
+    asm volatile("in %1, %0" : "=a"(b) : "dN"(port));
+    return b;
+}

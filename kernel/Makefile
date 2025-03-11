@@ -8,7 +8,9 @@ limine_path := ../limine
 c_source_files := $(shell find ./src -name '*.c')
 cpp_source_files := $(shell find ./src -name '*.cpp')
 
-override CFLAGS = -g -O2 -pipe\
+asm_source_files := $(shell find ./src -name '*.asm')
+
+override CFLAGS = -g -O1 -pipe\
 	-Wall \
     -Wextra \
     -ffreestanding \
@@ -57,8 +59,9 @@ $(iso): $(kernel)
         $(build_path)/iso -o $(iso)
 	@../limine/limine bios-install $(iso)
 
-$(kernel): $(c_source_files) $(cpp_source_files) 
-	@g++ $(CFLAGS) $(LDFLAGS) $(c_source_files) $(cpp_source_files) -o $(kernel)
+$(kernel): $(c_source_files) $(cpp_source_files)
+	@nasm -f elf64 $(asm_source_files) -o $(build_path)/asm.o
+	@g++ $(CFLAGS) $(LDFLAGS) $(build_path)/asm.o $(c_source_files) $(cpp_source_files) -o $(kernel)
 
 run: $(iso)
 	@qemu-system-x86_64 \
