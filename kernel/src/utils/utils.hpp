@@ -56,12 +56,32 @@ void *memset(void *s, uint8_t c, size_t n) {
     return s;
 }
 
-void out_port(uint16_t port, char b) {
-    asm volatile("out %1, %0" : : "dN"(port), "a"(b));
+void out_b(uint16_t port, char b) {
+    asm volatile("outb %1, %0" : : "d"(port), "a"(b));
 }
 
-char in_port(uint16_t port) {
+char in_b(uint16_t port) {
     char b;
-    asm volatile("in %1, %0" : "=a"(b) : "dN"(port));
+    asm volatile("inb %1, %0" : "=a"(b) : "d"(port));
+    return b;
+}
+
+void out_w(uint16_t port, uint16_t b) {
+    asm volatile("outw %1, %0" : : "d"(port), "a"(b));
+}
+
+uint16_t in_w(uint16_t port) {
+    uint16_t b;
+    asm volatile("inw %1, %0" : "=a"(b) : "d"(port));
+    return b;
+}
+
+void out_dw(uint16_t port, uint32_t b) {
+    asm volatile("outl %1, %0" : : "d"(port), "a"(b));
+}
+
+uint32_t in_dw(uint16_t port) {
+    uint32_t b;
+    asm volatile("inl %1, %0" : "=a"(b) : "d"(port));
     return b;
 }

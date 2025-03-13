@@ -1,6 +1,6 @@
 build_path := ./build
 kernel := $(build_path)/kernel.bin
-iso := $(build_path)/os.iso
+hdd := $(build_path)/image.hdd
 
 linker_script := src/linker.ld
 limine_path := ../limine
@@ -35,42 +35,39 @@ override LDFLAGS =      -Wl,-m,elf_x86_64 \
     -z max-page-size=0x1000 \
     -T $(linker_script)
 
-.PHONY: clean all kernel run iso 
+.PHONY: all clean run run_debug
 
 all: $(kernel)
 
 clean: 
-	rm -r build/
+	rm -r build/*
 
-$(iso): $(kernel)
-	@mkdir -p $(build_path)/iso
-	@mkdir -p $(build_path)/iso/boot
-	@mkdir -p $(build_path)/iso/boot/limine
-	@mkdir -p $(build_path)/iso/EFI/BOOT
-	@cp -v $(kernel) $(build_path)/iso/boot
-	@cp -v src/limine.conf $(build_path)/iso/boot/limine
-	@cp -v $(limine_path)/limine-bios.sys $(limine_path)/limine-bios-cd.bin $(limine_path)/limine-uefi-cd.bin $(build_path)/iso/boot/limine 
-	@cp -v $(limine_path)/BOOTX64.EFI $(build_path)/iso/EFI/BOOT/
-	@cp -v $(limine_path)/BOOTIA32.EFI $(build_path)/iso/EFI/BOOT/
-	@xorriso -as mkisofs -R -r -J -b boot/limine/limine-bios-cd.bin \
-        -no-emul-boot -boot-load-size 4 -boot-info-table -hfsplus \
-        -apm-block-size 2048 --efi-boot boot/limine/limine-uefi-cd.bin \
-        -efi-boot-part --efi-boot-image --protective-msdos-label \
-        $(build_path)/iso -o $(iso)
-	@../limine/limine bios-install $(iso)
+$(hdd): $(kernel)
+	@rm $(hdd)
+	@dd if=/dev/zero bs=1M count=0 seek=64 of=$(hdd)
+	@sgdisk $(hdd) -n 1:2048 -t 1:ef00 -m 1
+	@../limine/limine bios-install $(hdd)
+	@mformat -i $(hdd)@@1M
+	@mmd -i $(hdd)@@1M ::/EFI ::/EFI/BOOT ::/boot ::/boot/limine
+	@mcopy -i $(hdd)@@1M $(kernel) ::/boot
+	@mcopy -i $(hdd)@@1M src/limine.conf $(limine_path)/limine-bios.sys ::/boot/limine
+	@mcopy -i $(hdd)@@1M $(limine_path)/BOOTX64.EFI ::/EFI/BOOT
+	@mcopy -i $(hdd)@@1M $(limine_path)/BOOTIA32.EFI ::/EFI/BOOT
 
-$(kernel): $(c_source_files) $(cpp_source_files)
+$(kernel): $(asm_source_files) $(c_source_files) $(cpp_source_files)
 	@nasm -f elf64 $(asm_source_files) -o $(build_path)/asm.o
 	@g++ $(CFLAGS) $(LDFLAGS) $(build_path)/asm.o $(c_source_files) $(cpp_source_files) -o $(kernel)
 
-run: $(iso)
+run: $(hdd)
 	@qemu-system-x86_64 \
 	-m 256M \
-	-drive if=pflash,unit=0,format=raw,file=./../ovmf/ovmf-code-x86_64.fd,readonly=on \
-	-cdrom $(iso)
+	-bios ./../ovmf/ovmf-code-x86_64.fd \
+	-drive file=$(hdd),format=raw
 
-run_debug: $(iso)
+run_debug: $(hdd)
 	@qemu-system-x86_64 \
 	-m 256M \
-	-drive if=pflash,unit=0,format=raw,file=./../ovmf/ovmf-code-x86_64.fd,readonly=on \
-	-no-shutdown -no-reboot -d cpu_reset -cdrom $(iso)
+	-bios ./../ovmf/ovmf-code-x86_64.fd \
+	-drive file=$(hdd),format=raw \
+	-no-shutdown -no-reboot -d cpu_reset 
+

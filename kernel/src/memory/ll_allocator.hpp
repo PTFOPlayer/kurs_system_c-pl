@@ -2,7 +2,7 @@
 #include <stdint.h>
 
 #include "../graphics/graphics.hpp"
-
+#include "../limine.h"
 struct LinkedListNode {
     LinkedListNode* next;
     uint32_t size;
@@ -100,5 +100,29 @@ void LinkedListAllocator::dbg(TextMode& text_mode) {
     while (freed != nullptr) {
         text_mode.printf("\t Base: %d, Size: %d\n", freed, freed->size);
         freed = freed->next;
+    }
+}
+
+limine_memmap_entry* find_first_valid_mmap(limine_memmap_response* response) {
+    limine_memmap_entry* current_entry = nullptr;
+    for (size_t i = 0; i < response->entry_count; i++) {
+        limine_memmap_entry* entry = response->entries[i];
+        if (entry->type == LIMINE_MEMMAP_USABLE && current_entry == nullptr) {
+            current_entry = entry;
+        }
+    }
+    return current_entry;
+}
+
+void* get_base(limine_memmap_entry* entry, limine_hhdm_response* hhdm) {
+    return (void*)(entry->base + hhdm->offset);
+}
+
+void print_mmap(TextMode& text_mode, limine_memmap_response* response) {
+    for (size_t i = 0; i < response->entry_count; i++) {
+        limine_memmap_entry* entry = response->entries[i];
+        text_mode.printf("\tBase: 0x%x\t|\tLen: %x", entry->base,
+                         entry->length);
+        text_mode.printf("\n");
     }
 }
