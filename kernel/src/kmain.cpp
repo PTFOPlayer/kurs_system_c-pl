@@ -54,18 +54,17 @@ extern "C" void kmain(void) {
     TextMode text_mode(framebuffer);
     idt_init();
 
-    text_mode.info("Resolution: %dx%d\n", framebuffer->width,
-                   framebuffer->height);
+    info("Resolution: %dx%d\n", framebuffer->width, framebuffer->height);
 
     limine_memmap_entry* first = find_first_valid_mmap(memmap);
 
     LinkedListAllocator ll(get_base(first, hhdm_request.response));
 
     uint32_t loooong_string_size = 1024;
-    char* loooong_string = (char*)ll.malloc(loooong_string_size);
+    char* loooong_string = (char*)malloc(loooong_string_size);
 
     if (loooong_string == nullptr) {
-        text_mode.printf("error, nullptr");
+        printf("error, nullptr");
     } else {
         for (size_t i = 0; i < loooong_string_size;) {
             for (size_t j = 'a'; i < loooong_string_size && j <= 'z'; j++) {
@@ -75,16 +74,17 @@ extern "C" void kmain(void) {
         }
     }
 
-    text_mode.printf(loooong_string);
+    printf(loooong_string);
 
-    ll.free(ll.malloc(128));
-    ll.dbg(text_mode);
+    free(malloc(128));
+    ll.dbg();
 
-    void* reuse = ll.malloc(120);
-    ll.dbg(text_mode);
+    void* reuse = malloc(120);
+    ll.dbg();
 
-    ll.free(reuse);
-    ll.free(loooong_string);
+    free(reuse);
+    
+    free(loooong_string);
 
     halt();
 }
