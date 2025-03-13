@@ -22,6 +22,10 @@ __attribute__((
         ".limine_requests"))) static volatile struct limine_framebuffer_request
     framebuffer_request = {.id = LIMINE_FRAMEBUFFER_REQUEST, .revision = 0};
 
+__attribute__((used,
+               section(".requests"))) static volatile struct limine_smp_request
+    smp_request = {.id = LIMINE_SMP_REQUEST, .revision = 1};
+
 __attribute__((
     used,
     section(".limine_requests"))) static volatile struct limine_memmap_request
@@ -37,60 +41,25 @@ __attribute__((
     section(
         ".limine_requests_end"))) static volatile LIMINE_REQUESTS_END_MARKER;
 
-void halt(void) {
-    for (;;) {
-        asm("hlt");
-    }
-}
+void halt();
+void check_protocol();
 
 extern "C" void kmain(void) {
-    if (LIMINE_BASE_REVISION_SUPPORTED == false) {
-        halt();
-    }
+    check_protocol();
 
-    if (framebuffer_request.response == nullptr ||
-        framebuffer_request.response->framebuffer_count < 1) {
-        halt();
-    }
-
-    if (memmap_request.response == nullptr) {
-        halt();
-    }
-
-    if (hhdm_request.response == nullptr) {
-        halt();
-    }
-
-    struct limine_framebuffer* framebuffer =
+    limine_framebuffer* framebuffer =
         framebuffer_request.response->framebuffers[0];
-    struct limine_memmap_response* memmap = memmap_request.response;
+    limine_memmap_response* memmap = memmap_request.response;
 
     TextMode text_mode(framebuffer);
     idt_init();
 
-    text_mode.printf("This is normal text\n");
-    text_mode.error("This is error text\n");
-    text_mode.warning("This is warning text\n");
-    text_mode.info("This is info text\n");
+    text_mode.info("Resolution: %dx%d\n", framebuffer->width,
+                   framebuffer->height);
 
-    text_mode.printf("Resolution: %dx%d\n", framebuffer->width,
-                     framebuffer->height);
+    limine_memmap_entry* first = find_first_valid_mmap(memmap);
 
-    text_mode.printf("memmap size: %d\n", memmap->entry_count);
-    struct limine_memmap_entry* current_entry = nullptr;
-    for (size_t i = 0; i < memmap->entry_count; i++) {
-        struct limine_memmap_entry* entry = memmap->entries[i];
-        text_mode.printf("\tBase: 0x%x\t|\tLen: %x", entry->base,
-                         entry->length);
-        if (entry->type == LIMINE_MEMMAP_USABLE && current_entry == nullptr) {
-            current_entry = entry;
-            text_mode.printf("\tFound new current");
-        }
-        text_mode.printf("\n");
-    }
-
-    LinkedListAllocator ll(
-        (void*)(current_entry->base + hhdm_request.response->offset));
+    LinkedListAllocator ll(get_base(first, hhdm_request.response));
 
     uint32_t loooong_string_size = 1024;
     char* loooong_string = (char*)ll.malloc(loooong_string_size);
@@ -119,3 +88,28 @@ extern "C" void kmain(void) {
 
     halt();
 }
+
+void halt(void) {
+    for (;;) {
+        asm("hlt");
+    }
+}
+
+void check_protocol() {
+    if (LIMINE_BASE_REVISION_SUPPORTED == false) {
+        halt();
+    }
+
+    if (framebuffer_request.response == nullptr ||
+        framebuffer_request.response->framebuffer_count < 1) {
+        halt();
+    }
+
+    if (memmap_request.response == nullptr) {
+        halt();
+    }
+
+    if (hhdm_request.response == nullptr) {
+        halt();
+    }
+};

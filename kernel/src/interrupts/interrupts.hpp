@@ -106,10 +106,10 @@ extern "C" void irq_handler(IRQFrame* frame) {
     }
 
     if (frame->idx >= 8) {
-        out_port(SLAVE_PIC, 0x20);
+        out_b(SLAVE_PIC, 0x20);
     }
 
-    out_port(MASTER_PIC, 0x20);
+    out_b(MASTER_PIC, 0x20);
 }
 
 void irq_install(uint64_t irq, void (*handler)(IRQFrame frame)) {
@@ -132,20 +132,20 @@ void idt_init() {
         }
     }
 
-    out_port(MASTER_PIC, 0x11);
-    out_port(SLAVE_PIC, 0x11);
+    out_b(MASTER_PIC, 0x11);
+    out_b(SLAVE_PIC, 0x11);
 
-    out_port(MASTER_PIC_DATA, 0x20);
-    out_port(SLAVE_PIC_DATA, 0x28);
+    out_b(MASTER_PIC_DATA, 0x20);
+    out_b(SLAVE_PIC_DATA, 0x28);
 
-    out_port(MASTER_PIC_DATA, 0x04);
-    out_port(SLAVE_PIC_DATA, 0x02);
+    out_b(MASTER_PIC_DATA, 0x04);
+    out_b(SLAVE_PIC_DATA, 0x02);
 
-    out_port(MASTER_PIC_DATA, 0x01);
-    out_port(SLAVE_PIC_DATA, 0x01);
+    out_b(MASTER_PIC_DATA, 0x01);
+    out_b(SLAVE_PIC_DATA, 0x01);
 
-    out_port(MASTER_PIC_DATA, 0x0);
-    out_port(SLAVE_PIC_DATA, 0x0);
+    out_b(MASTER_PIC_DATA, 0x0);
+    out_b(SLAVE_PIC_DATA, 0x0);
 
     __asm__ volatile("lidt %0" : : "m"(idtr));
     __asm__ volatile("sti");
