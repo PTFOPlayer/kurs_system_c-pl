@@ -16,8 +16,6 @@ class TextMode {
     uint32_t max_height;
     void write_char(uint32_t width, uint32_t heigth, uint32_t foreground,
                     uint32_t background, char c);
-    void vprintf(char *, va_list);
-
    public:
     static const uint32_t default_foreground = 0xffffff;
     static const uint32_t default_background = 0x000000;
@@ -48,16 +46,14 @@ class TextMode {
     void clear_line();
     void putc(char);
     void puts(char *);
-    void printf(char *, ...);
-    void error(char *, ...);
-    void warning(char *, ...);
-    void info(char *, ...);
+    void _vprintf(char *, va_list);
+
     ~TextMode();
 };
 
-static TextMode *global_writer = nullptr;
+static TextMode *text_mode = nullptr;
 TextMode::TextMode(struct limine_framebuffer *data) {
-    global_writer = this;
+    text_mode = this;
     this->max_width = data->width;
     this->max_height = data->height;
     this->addr = (uint32_t *)data->address;
@@ -166,7 +162,7 @@ void TextMode::puts(char *c) {
     }
 }
 
-void TextMode::vprintf(char *format, va_list l) {
+void TextMode::_vprintf(char *format, va_list l) {
     char buff[64] = {0};
     while (*format != '\0') {
         char c = *format;
@@ -206,34 +202,34 @@ void TextMode::vprintf(char *format, va_list l) {
     }
 }
 
-void TextMode::printf(char *format, ...) {
+void printf(char *format, ...) {
     va_list l;
     va_start(l, format);
-    vprintf(format, l);
+    text_mode->_vprintf(format, l);
 }
 
-void TextMode::error(char *format, ...) {
-    set_error_colors();
+void error(char *format, ...) {
+    text_mode->set_error_colors();
     va_list l;
     va_start(l, format);
-    vprintf(format, l);
-    set_default_colors();
+    text_mode->_vprintf(format, l);
+    text_mode->set_default_colors();
 }
 
-void TextMode::warning(char *format, ...) {
-    set_warning_colors();
+void warning(char *format, ...) {
+    text_mode->set_warning_colors();
     va_list l;
     va_start(l, format);
-    vprintf(format, l);
-    set_default_colors();
+    text_mode->_vprintf(format, l);
+    text_mode->set_default_colors();
 }
 
-void TextMode::info(char *format, ...) {
-    set_info_colors();
+void info(char *format, ...) {
+    text_mode->set_info_colors();
     va_list l;
     va_start(l, format);
-    vprintf(format, l);
-    set_default_colors();
+    text_mode->_vprintf(format, l);
+    text_mode->set_default_colors();
 }
 
 TextMode::~TextMode() {}

@@ -39,7 +39,7 @@ struct ExceptionFrame {
 const uint8_t dbg_registers_cond = 1;
 
 void dbg_register_pair(char* reg1, char* reg2, uint64_t var1, uint64_t var2) {
-    global_writer->printf("%s: 0x%x\t\t%s: 0x%x\n", reg1, var1, reg2, var2);
+    printf("%s: 0x%x\t\t%s: 0x%x\n", reg1, var1, reg2, var2);
 }
 
 extern "C" void exception_handler(struct ExceptionFrame* frame) {
@@ -48,12 +48,12 @@ extern "C" void exception_handler(struct ExceptionFrame* frame) {
         msg = interrupts_msg[frame->error_code];
     }
 
-    if (global_writer) {
-        global_writer->error("\n\nInterrupt occured\n%s\n", msg);
+    if (text_mode) {
+        error("\n\nInterrupt occured\n%s\n", msg);
     }
 
-    if (global_writer && dbg_registers_cond) {
-        global_writer->printf("flags: 0x%x\n", frame->flags);
+    if (text_mode && dbg_registers_cond) {
+        printf("flags: 0x%x\n", frame->flags);
         dbg_register_pair("rax", "rbx", frame->rax, frame->rbx);
         dbg_register_pair("rcx", "rdx", frame->rcx, frame->rdx);
         dbg_register_pair("rbp", "rsp", frame->rbp, frame->rsp);

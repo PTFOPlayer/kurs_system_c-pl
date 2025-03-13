@@ -19,12 +19,14 @@ class LinkedListAllocator {
     LinkedListAllocator(void* base);
     ~LinkedListAllocator() {};
 
-    void dbg(TextMode& text_mode);
-    void* malloc(uint32_t);
-    void free(void*);
+    void dbg();
+    friend void* malloc(uint32_t);
+    friend void free(void*);
 };
 
+static LinkedListAllocator* ll_allocator = nullptr;
 LinkedListAllocator::LinkedListAllocator(void* base) {
+    ll_allocator = this;
     this->head = (LinkedListNode*)base;
     this->tail = this->head;
     this->tail->next = nullptr;
@@ -33,24 +35,24 @@ LinkedListAllocator::LinkedListAllocator(void* base) {
     this->free_list_tail = nullptr;
 }
 
-void* LinkedListAllocator::malloc(uint32_t size) {
+void* malloc(uint32_t size) {
     LinkedListNode* new_node =
-        (LinkedListNode*)((uint64_t)this->tail + sizeof(LinkedListNode) +
-                          this->tail->size);
+        (LinkedListNode*)((uint64_t)ll_allocator->tail +
+                          sizeof(LinkedListNode) + ll_allocator->tail->size);
 
     LinkedListNode* prev = nullptr;
-    LinkedListNode* current = free_list_head;
+    LinkedListNode* current = ll_allocator->free_list_head;
 
     while (current) {
         if (current->size >= size) {
             if (prev) {
                 prev->next = current->next;
             } else {
-                free_list_head = current->next;
+                ll_allocator->free_list_head = current->next;
             }
 
-            if (current == free_list_tail) {
-                free_list_tail = prev;
+            if (current == ll_allocator->free_list_tail) {
+                ll_allocator->free_list_tail = prev;
             }
 
             return (void*)((uint64_t)current + sizeof(LinkedListNode));
@@ -59,46 +61,46 @@ void* LinkedListAllocator::malloc(uint32_t size) {
         current = current->next;
     }
 
-    if ((uintptr_t)new_node < (uintptr_t)this->tail) {
+    if ((uintptr_t)new_node < (uintptr_t)ll_allocator->tail) {
         return nullptr;
     }
 
-    this->tail->next = new_node;
-    this->tail = new_node;
-    this->tail->next = nullptr;
-    this->tail->size = size;
+    ll_allocator->tail->next = new_node;
+    ll_allocator->tail = new_node;
+    ll_allocator->tail->next = nullptr;
+    ll_allocator->tail->size = size;
 
-    return (void*)((uint64_t)this->tail + sizeof(LinkedListNode));
+    return (void*)((uint64_t)ll_allocator->tail + sizeof(LinkedListNode));
 }
 
-void LinkedListAllocator::free(void* ptr) {
+void free(void* ptr) {
     if (!ptr) return;
 
     LinkedListNode* node =
         (LinkedListNode*)((uint64_t)ptr - sizeof(LinkedListNode));
 
-    if (free_list_head == nullptr) {
-        free_list_head = node;
-        free_list_tail = node;
+    if (ll_allocator->free_list_head == nullptr) {
+        ll_allocator->free_list_head = node;
+        ll_allocator->free_list_tail = node;
         node->next = nullptr;
     } else {
-        node->next = free_list_head;
-        free_list_head = node;
+        node->next = ll_allocator->free_list_head;
+        ll_allocator->free_list_head = node;
     }
 }
 
-void LinkedListAllocator::dbg(TextMode& text_mode) {
-    text_mode.info("\n\nAllocated nodes:\n");
+void LinkedListAllocator::dbg() {
+    info("\n\nAllocated nodes:\n");
     LinkedListNode* head = this->head;
     while (head != nullptr) {
-        text_mode.printf("\t Base: %d, Size: %d\n", head, head->size);
+        printf("\t Base: %d, Size: %d\n", head, head->size);
         head = head->next;
     }
 
-    text_mode.info("Freed nodes:\n");
+    info("Freed nodes:\n");
     LinkedListNode* freed = this->free_list_head;
     while (freed != nullptr) {
-        text_mode.printf("\t Base: %d, Size: %d\n", freed, freed->size);
+        printf("\t Base: %d, Size: %d\n", freed, freed->size);
         freed = freed->next;
     }
 }
@@ -118,11 +120,10 @@ void* get_base(limine_memmap_entry* entry, limine_hhdm_response* hhdm) {
     return (void*)(entry->base + hhdm->offset);
 }
 
-void print_mmap(TextMode& text_mode, limine_memmap_response* response) {
+void print_mmap(limine_memmap_response* response) {
     for (size_t i = 0; i < response->entry_count; i++) {
         limine_memmap_entry* entry = response->entries[i];
-        text_mode.printf("\tBase: 0x%x\t|\tLen: %x", entry->base,
-                         entry->length);
-        text_mode.printf("\n");
+        printf("\tBase: 0x%x\t|\tLen: %x", entry->base, entry->length);
+        printf("\n");
     }
 }
