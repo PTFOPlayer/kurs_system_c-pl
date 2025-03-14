@@ -5,9 +5,12 @@
 
 #include "graphics/graphics.hpp"
 #include "interrupts/interrupts.hpp"
+#include "interrupts/pit.hpp"
+#include "keyboard/keyboard.hpp"
 #include "limine.h"
 #include "memory/ll_allocator.hpp"
 #include "utils/utils.hpp"
+#include "utils/buffers/circular_buffer.hpp"
 
 __attribute__((used,
                section(".limine_requests_"
@@ -53,38 +56,17 @@ extern "C" void kmain(void) {
 
     TextMode text_mode(framebuffer);
     idt_init();
+    keyboard_init();
+    pit_init(100);
+    set_pit_handler([](IRQFrame frame) {
+        // pit processes
+    });
 
     info("Resolution: %dx%d\n", framebuffer->width, framebuffer->height);
 
     limine_memmap_entry* first = find_first_valid_mmap(memmap);
-
     LinkedListAllocator ll(get_base(first, hhdm_request.response));
-
-    uint32_t loooong_string_size = 1024;
-    char* loooong_string = (char*)malloc(loooong_string_size);
-
-    if (loooong_string == nullptr) {
-        printf("error, nullptr");
-    } else {
-        for (size_t i = 0; i < loooong_string_size;) {
-            for (size_t j = 'a'; i < loooong_string_size && j <= 'z'; j++) {
-                loooong_string[i] = (char)j;
-                i++;
-            }
-        }
-    }
-
-    printf(loooong_string);
-
-    free(malloc(128));
-    ll.dbg();
-
-    void* reuse = malloc(120);
-    ll.dbg();
-
-    free(reuse);
     
-    free(loooong_string);
 
     halt();
 }
