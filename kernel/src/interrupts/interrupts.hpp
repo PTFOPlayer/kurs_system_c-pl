@@ -149,4 +149,6 @@ void idt_init() {
 
     __asm__ volatile("lidt %0" : : "m"(idtr));
     __asm__ volatile("sti");
+
+    info("IDT initialized \n");
 }
