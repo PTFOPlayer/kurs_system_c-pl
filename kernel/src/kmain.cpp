@@ -11,6 +11,7 @@
 #include "memory/ll_allocator.hpp"
 #include "utils/utils.hpp"
 #include "utils/buffers/circular_buffer.hpp"
+#include "pci/pci.hpp"
 
 __attribute__((used,
                section(".limine_requests_"
@@ -67,7 +68,7 @@ extern "C" void kmain(void) {
     limine_memmap_entry* first = find_first_valid_mmap(memmap);
     LinkedListAllocator ll(get_base(first, hhdm_request.response));
     
-
+    check_pci();
     halt();
 }
 
