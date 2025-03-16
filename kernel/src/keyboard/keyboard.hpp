@@ -7,7 +7,7 @@
 uint8_t caps = 0;
 uint8_t capslock = 0;
 
-void keyboard(IRQFrame _) {
+void keyboard(IRQFrame) {
     char scan = in_b(0x60) & 0x7f;
     char press = in_b(0x60) & 0x80;
     switch (scan) {
@@ -44,9 +44,9 @@ void keyboard(IRQFrame _) {
         default:
             if (!press) {
                 if (caps || capslock) {
-                    printf("%c", uppercase[scan]);
+                    printf("%c", uppercase[(int)scan]);
                 } else {
-                    printf("%c", lowercase[scan]);
+                    printf("%c", lowercase[(int)scan]);
                 }
             }
     }
