@@ -2,10 +2,11 @@ bits 64
 
 %macro pushaq 0
     push rax
+    push rbx
     push rcx
     push rdx
-    push rbx
     push rbp
+    push rsp
     push rsi
     push rdi
     push r8
@@ -29,10 +30,11 @@ bits 64
     pop r8
     pop rdi
     pop rsi
+    pop rsp
     pop rbp
-    pop rbx
     pop rdx
     pop rcx
+    pop rbx
     pop rax
 %endmacro
 
