@@ -55,6 +55,14 @@ __attribute__((
 void halt();
 void check_protocol();
 
+void ctx1() {
+    while (1)
+    {
+        printf("a\n");
+    }
+    
+}
+
 extern "C" void kmain(void) {
     check_protocol();
 
@@ -66,11 +74,11 @@ extern "C" void kmain(void) {
     idt_init();
     keyboard_init();
     pit_init(1000);
-
+    
     set_pit_handler([](IRQFrame* frame) {
-        
+        frame->rip = (uint64_t)ctx1;
     });
-
+    
     info("Resolution: %dx%d\n", framebuffer->width, framebuffer->height);
     limine_memmap_entry* first = find_first_valid_mmap(memmap);
     LinkedListAllocator ll(get_base(first, hhdm_request.response));
