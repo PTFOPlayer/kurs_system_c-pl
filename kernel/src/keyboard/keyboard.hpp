@@ -7,7 +7,7 @@
 uint8_t caps = 0;
 uint8_t capslock = 0;
 
-void keyboard(IRQFrame) {
+void keyboard(IRQFrame*) {
     char scan = in_b(0x60) & 0x7f;
     char press = in_b(0x60) & 0x80;
     switch (scan) {

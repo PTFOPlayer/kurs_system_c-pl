@@ -31,10 +31,14 @@ static IDTR idtr;
 
 struct ExceptionFrame {
     uint64_t error_code;
-    uint64_t flags;
     uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rdi, rsi, rsp, rbp, rdx, rcx,
         rbx, rax;
-};
+    uint64_t rip;
+    uint64_t cs;
+    uint64_t rflags;
+    uint64_t optional_rsp;
+    uint64_t optional_ss;
+} __attribute__((packed));
 
 const uint8_t dbg_registers_cond = 1;
 
@@ -53,15 +57,16 @@ extern "C" void exception_handler(struct ExceptionFrame* frame) {
     }
 
     if (text_mode && dbg_registers_cond) {
-        printf("flags: 0x%x\n", frame->flags);
-        dbg_register_pair("rax", "rbx", frame->rax, frame->rbx);
-        dbg_register_pair("rcx", "rdx", frame->rcx, frame->rdx);
-        dbg_register_pair("rbp", "rsp", frame->rbp, frame->rsp);
-        dbg_register_pair("rsi", "rdi", frame->rsi, frame->rdi);
-        dbg_register_pair("r8 ", "r9 ", frame->r8, frame->r9);
-        dbg_register_pair("r10", "r11", frame->r10, frame->r11);
-        dbg_register_pair("r12", "r13", frame->r12, frame->r13);
-        dbg_register_pair("r14", "r15", frame->r14, frame->r15);
+        printf("CS: 0x%x\t| RIP: 0x%x \t| Flags: 0b%b\n", frame->cs, frame->rip,
+               frame->rflags);
+        printf("rax: 0x%x\t|\trbx: 0x%x\t|\trcx: 0x%x\t|\trdx: 0x%x\n",
+               frame->rax, frame->rbx, frame->rcx, frame->rdx);
+        printf("rbp: 0x%x\t|\trsp: 0x%x\t|\trsi: 0x%x\t|\trdi: 0x%x\n",
+               frame->rbp, frame->rsp, frame->rsi, frame->rdi);
+        printf("r8: 0x%x\t|\r9: 0x%x\t|\tr10: 0x%x\t|\r11: 0x%x\n", frame->r8,
+               frame->r9, frame->r10, frame->r11);
+        printf("r12: 0x%x\t|\r13: 0x%x\t|\tr14: 0x%x\t|\tr15: 0x%x\n",
+               frame->r12, frame->r13, frame->r14, frame->r15);
     }
 
     asm volatile("cli");
@@ -88,21 +93,25 @@ static bool vectors[IDT_MAX_DESCRIPTORS];
 extern void* isr_stub_table[];
 extern void* irq_stub_table[];
 
-typedef struct IRQFrame {
+struct IRQFrame {
     uint64_t idx;
-    uint64_t flags;
     uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rdi, rsi, rsp, rbp, rdx, rcx,
         rbx, rax;
-} IRQFrame;
+    uint64_t rip;
+    uint64_t cs;
+    uint64_t rflags;
+    uint64_t optional_rsp;
+    uint64_t optional_ss;
+} __attribute__((packed));
 
-void (*irq_routines[16])(IRQFrame frame) = {
+void (*irq_routines[16])(IRQFrame* frame) = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 
 extern "C" void irq_handler(IRQFrame* frame) {
-    void (*routine)(IRQFrame frame) = irq_routines[frame->idx];
+    void (*routine)(IRQFrame* frame) = irq_routines[frame->idx];
     if (routine) {
-        routine(*frame);
+        routine(frame);
     }
 
     if (frame->idx >= 8) {
@@ -112,7 +121,7 @@ extern "C" void irq_handler(IRQFrame* frame) {
     out_b(MASTER_PIC, 0x20);
 }
 
-void irq_install(uint64_t irq, void (*handler)(IRQFrame frame)) {
+void irq_install(uint64_t irq, void (*handler)(IRQFrame* frame)) {
     irq_routines[irq] = handler;
 }
 

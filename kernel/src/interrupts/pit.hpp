@@ -1,7 +1,7 @@
 #include "../utils/utils.hpp"
 #include "interrupts.hpp"
 
-void set_pit_handler(void (*handler)(IRQFrame)) { irq_install(0, handler); }
+void set_pit_handler(void (*handler)(IRQFrame*)) { irq_install(0, handler); }
 
 void pit_init(uint32_t freq) {
     uint32_t divisor = 1193180 / freq;  // 119318.166666 Mhz

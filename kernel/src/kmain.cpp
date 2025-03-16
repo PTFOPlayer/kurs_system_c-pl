@@ -10,9 +10,11 @@
 #include "limine.h"
 #include "memory/ll_allocator.hpp"
 #include "memory/operators.hpp"
-#include "utils/utils.hpp"
-#include "utils/buffers/circular_buffer.hpp"
 #include "pci/pci.hpp"
+#include "tasks/context.hpp"
+#include "utils/buffers/circular_buffer.hpp"
+#include "utils/utils.hpp"
+
 __attribute__((used,
                section(".limine_requests_"
                        "start"))) static volatile LIMINE_REQUESTS_START_MARKER;
@@ -24,21 +26,26 @@ __attribute__((
     used,
     section(
         ".limine_requests"))) static volatile struct limine_framebuffer_request
-    framebuffer_request = {.id = LIMINE_FRAMEBUFFER_REQUEST, .revision = 0, .response = nullptr};
+    framebuffer_request = {
+        .id = LIMINE_FRAMEBUFFER_REQUEST, .revision = 0, .response = nullptr};
 
-__attribute__((used,
-               section(".limine_requests"))) static volatile struct limine_smp_request
-    smp_request = {.id = LIMINE_SMP_REQUEST, .revision = 1, .response = nullptr};
+__attribute__((
+    used,
+    section(".limine_requests"))) static volatile struct limine_smp_request
+    smp_request = {
+        .id = LIMINE_SMP_REQUEST, .revision = 1, .response = nullptr};
 
 __attribute__((
     used,
     section(".limine_requests"))) static volatile struct limine_memmap_request
-    memmap_request = {.id = LIMINE_MEMMAP_REQUEST, .revision = 0, .response = nullptr};
+    memmap_request = {
+        .id = LIMINE_MEMMAP_REQUEST, .revision = 0, .response = nullptr};
 
 __attribute__((
     used,
     section(".limine_requests"))) static volatile struct limine_hhdm_request
-    hhdm_request = {.id = LIMINE_HHDM_REQUEST, .revision = 0, .response = nullptr};
+    hhdm_request = {
+        .id = LIMINE_HHDM_REQUEST, .revision = 0, .response = nullptr};
 
 __attribute__((
     used,
@@ -58,16 +65,15 @@ extern "C" void kmain(void) {
     TextMode text_mode(framebuffer);
     idt_init();
     keyboard_init();
-    pit_init(100);
-    set_pit_handler([](IRQFrame frame) {
-        // pit processes
+    pit_init(1000);
+
+    set_pit_handler([](IRQFrame* frame) {
+        
     });
 
     info("Resolution: %dx%d\n", framebuffer->width, framebuffer->height);
-
     limine_memmap_entry* first = find_first_valid_mmap(memmap);
     LinkedListAllocator ll(get_base(first, hhdm_request.response));
-
     check_pci();
     halt();
 }
