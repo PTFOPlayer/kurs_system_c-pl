@@ -14,6 +14,7 @@ override CFLAGS = -g -O1 -pipe\
 	-Wall \
     -Wextra \
     -ffreestanding \
+	-fno-use-cxa-atexit \
     -fno-stack-protector \
     -fno-stack-check \
     -fno-PIC \
@@ -69,5 +70,5 @@ run_debug: $(hdd)
 	-m 256M \
 	-bios ./../ovmf/ovmf-code-x86_64.fd \
 	-drive file=$(hdd),format=raw \
-	-no-shutdown -no-reboot -d cpu_reset 
+	-no-shutdown -no-reboot -d int,cpu_reset,guest_errors
 
