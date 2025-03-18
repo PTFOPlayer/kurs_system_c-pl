@@ -55,13 +55,21 @@ __attribute__((
 void halt();
 void check_protocol();
 
-void ctx1() {
+void ctx1_fn() {
+    while (1) {
+    }
+}
+
+void ctx2_fn() {
     while (1)
     {
-        printf("a\n");
     }
     
 }
+
+static Context* ctx1 = nullptr;
+static Context* ctx2 = nullptr;
+static int ctx = 3;
 
 extern "C" void kmain(void) {
     check_protocol();
@@ -73,16 +81,42 @@ extern "C" void kmain(void) {
     TextMode text_mode(framebuffer);
     idt_init();
     keyboard_init();
-    pit_init(1000);
-    
-    set_pit_handler([](IRQFrame* frame) {
-        frame->rip = (uint64_t)ctx1;
-    });
-    
     info("Resolution: %dx%d\n", framebuffer->width, framebuffer->height);
     limine_memmap_entry* first = find_first_valid_mmap(memmap);
     LinkedListAllocator ll(get_base(first, hhdm_request.response));
     check_pci();
+
+    pit_init(10);
+
+    ctx1 = new Context(ctx1_fn);
+
+    ctx2 = new Context(ctx2_fn);
+
+    set_pit_handler([](IRQFrame* frame) {
+        if (!ctx1 || !ctx2) {
+            return;
+        }
+
+        // print_frame(frame);
+        if (ctx == 3) {
+            printf("opt rsp: %x, rsp: %x\n", frame->optional_rsp, frame->stack);
+
+            ctx1->prepare_from_frame(frame);
+            ctx2->prepare_from_frame(frame);
+            ctx = 0;
+        } else if (ctx == 0) {
+            ctx2->copy_frame(frame);
+            ctx1->set_frame(frame);
+            ctx1->restore_return(frame);
+            ctx = 1;
+        } else {
+            ctx1->copy_frame(frame);
+            ctx2->set_frame(frame);
+            ctx2->restore_return(frame);
+            ctx = 0;
+        }
+    });
+
     halt();
 }
 

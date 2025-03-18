@@ -42,12 +42,14 @@ bits 64
 %macro isr_err_stub 1
 isr_stub_%+%1:
     cli
+    push rsp
     pushaq
     push %1
     mov rdi, rsp 
     call exception_handler
     pop rdi
     popaq
+    pop rsp
     sti
     iretq
 %endmacro
@@ -55,12 +57,14 @@ isr_stub_%+%1:
 %macro isr_no_err_stub 1
 isr_stub_%+%1:
     cli
+    push rsp
     pushaq
     push %1
     mov rdi, rsp 
     call exception_handler
     pop rdi
     popaq
+    pop rsp
     sti
     iretq
 %endmacro
@@ -110,12 +114,14 @@ isr_stub_table:
 %macro irq 1
 irq_%1:
     cli
+    push rsp
     pushaq
     push %1
     mov rdi, rsp 
     call irq_handler
     pop rdi
     popaq
+    pop rsp
     sti
     iretq
 %endmacro
