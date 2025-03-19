@@ -3,3 +3,4 @@ book
 .vscode
 a.out
 limine
+**/*.o

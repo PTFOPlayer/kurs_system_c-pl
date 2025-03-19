@@ -9,6 +9,7 @@ c_source_files := $(shell find ./src -name '*.c')
 cpp_source_files := $(shell find ./src -name '*.cpp')
 
 asm_source_files := $(shell find ./src -name '*.asm')
+asm_obj = $(patsubst src/%, build/%, $(asm_source_files:.asm=.o))
 
 override CFLAGS = -g -O1 -pipe\
 	-Wall \
@@ -55,9 +56,13 @@ $(hdd): $(kernel)
 	@mcopy -i $(hdd)@@1M $(limine_path)/BOOTX64.EFI ::/EFI/BOOT
 	@mcopy -i $(hdd)@@1M $(limine_path)/BOOTIA32.EFI ::/EFI/BOOT
 
-$(kernel): $(asm_source_files) $(c_source_files) $(cpp_source_files)
-	@nasm -f elf64 $(asm_source_files) -o $(build_path)/asm.o
-	@g++ $(CFLAGS) $(LDFLAGS) $(build_path)/asm.o $(c_source_files) $(cpp_source_files) -o $(kernel)
+
+src/%.o: src/%.asm
+	@nasm -f elf64 $< -o $@
+	
+$(kernel): $(asm_obj) $(c_source_files) $(cpp_source_files)
+	# @nasm -f elf64 $(asm_source_files) -o $(build_path)/asm.o
+	@g++ $(CFLAGS) $(LDFLAGS) $(asm_obj) $(c_source_files) $(cpp_source_files) -o $(kernel)
 
 run: $(hdd)
 	@qemu-system-x86_64 \

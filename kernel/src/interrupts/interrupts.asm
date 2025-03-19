@@ -6,7 +6,6 @@ bits 64
     push rcx
     push rdx
     push rbp
-    push rsp
     push rsi
     push rdi
     push r8
@@ -30,7 +29,6 @@ bits 64
     pop r8
     pop rdi
     pop rsi
-    pop rsp
     pop rbp
     pop rdx
     pop rcx

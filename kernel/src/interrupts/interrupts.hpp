@@ -31,9 +31,9 @@ static IDTR idtr;
 
 struct ExceptionFrame {
     uint64_t error_code;
-    uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rdi, rsi, rsp, rbp, rdx, rcx,
-        rbx, rax;
-    uint64_t stack;
+    uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rdi, rsi, rbp, rdx, rcx, rbx,
+        rax;
+    uint64_t rsp;
     uint64_t rip;
     uint64_t cs;
     uint64_t rflags;
@@ -45,8 +45,7 @@ const uint8_t dbg_registers_cond = 1;
 
 template <typename T>
 void print_frame(T frame) {
-    printf("CS: 0x%x\t| RIP: 0x%x \t| Flags: 0b%b\n", frame->cs, frame->rip,
-           frame->rflags);
+    printf("RIP: 0x%x \t| Flags: 0b%b\n", frame->rip, frame->rflags);
     printf("rax: 0x%x\t|\trbx: 0x%x\t|\trcx: 0x%x\t|\trdx: 0x%x\n", frame->rax,
            frame->rbx, frame->rcx, frame->rdx);
     printf("rbp: 0x%x\t|\trsp: 0x%x\t|\trsi: 0x%x\t|\trdi: 0x%x\n", frame->rbp,
@@ -97,9 +96,9 @@ extern void* irq_stub_table[];
 
 struct IRQFrame {
     uint64_t idx;
-    uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rdi, rsi, rsp, rbp, rdx, rcx,
-        rbx, rax;
-    uint64_t stack;
+    uint64_t r15, r14, r13, r12, r11, r10, r9, r8, rdi, rsi, rbp, rdx, rcx, rbx,
+        rax;
+    uint64_t rsp;
     uint64_t rip;
     uint64_t cs;
     uint64_t rflags;
