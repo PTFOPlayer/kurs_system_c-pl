@@ -116,10 +116,6 @@ limine_memmap_entry* find_first_valid_mmap(limine_memmap_response* response) {
     return current_entry;
 }
 
-void* get_base(limine_memmap_entry* entry, limine_hhdm_response* hhdm) {
-    return (void*)(entry->base + hhdm->offset);
-}
-
 void print_mmap(limine_memmap_response* response) {
     for (size_t i = 0; i < response->entry_count; i++) {
         limine_memmap_entry* entry = response->entries[i];
