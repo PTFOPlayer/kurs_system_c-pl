@@ -1,6 +1,7 @@
 #pragma once
 #include "../../graphics/graphics.hpp"
 #include "../../utils/utils.hpp"
+#include "../fadt/fadt.hpp"
 #include "rsdt.hpp"
 
 class XSDPHandle {
@@ -12,6 +13,7 @@ class XSDPHandle {
     XSDPHandle(XSDP*);
 
     void print();
+    FADT* find_fadt();
     ~XSDPHandle() {};
 };
 
@@ -22,14 +24,24 @@ XSDPHandle::XSDPHandle(XSDP* xsdp) {
 
 void XSDPHandle::print() {
     uint32_t entries = (xsdt->header.Length - sizeof(ACPISDTHeader)) / 8;
-    for (size_t i = 0; i < entries; i++)
-    {
-        ACPISDTHeader *h= (ACPISDTHeader *)xsdt->other[i];
-        char sig[5] = {0};    
-        memcpy(sig, h->Signature, 4);   
+    for (size_t i = 0; i < entries; i++) {
+        ACPISDTHeader* h = (ACPISDTHeader*)xsdt->other[i];
+        char sig[5] = {0};
+        memcpy(sig, h->Signature, 4);
         printf("\t%s\n", sig);
     }
-    
+}
+
+FADT* XSDPHandle::find_fadt() {
+    uint32_t entries = (xsdt->header.Length - sizeof(ACPISDTHeader)) / 8;
+    for (size_t i = 0; i < entries; i++) {
+        ACPISDTHeader* h = (ACPISDTHeader*)xsdt->other[i];
+        if (h->Signature[0] == 'F' && h->Signature[1] == 'A' &&
+            h->Signature[2] == 'D' && h->Signature[3] == 'T') {
+            return (FADT*)h;
+        }
+    }
+    return nullptr;
 }
 
 class RSDPWrapper {

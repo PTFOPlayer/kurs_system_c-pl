@@ -3,8 +3,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "apic/rsdt/rsdt.hpp"
-#include "apic/rsdt/rsdt_wrapper.hpp"
+#include "acpi/rsdt/rsdt.hpp"
+#include "acpi/rsdt/rsdt_wrapper.hpp"
 #include "graphics/graphics.hpp"
 #include "interrupts/interrupts.hpp"
 #include "interrupts/pit.hpp"
@@ -76,9 +76,8 @@ extern "C" void kmain(void) {
     keyboard_init();
 
     RSDPWrapper rsdp_wrapped = RSDPWrapper(rsdp_request.response->address);
-    
-    if (!rsdp_wrapped.is_xsdp())
-    {
+
+    if (!rsdp_wrapped.is_xsdp()) {
         error("Expected xsdp");
         halt();
     }
